@@ -2,14 +2,17 @@ package com.bootcamp.androidpoker.app;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,11 +26,10 @@ import android.widget.Toast;
  */
 public class StartActivity extends Activity {
 
-  private WifiP2pManager p2pManager;
-  private Channel p2pChannel;
-  private BroadcastReceiver p2pReceiver;
-  private IntentFilter intentFilter;
+  private PokerService mBoundService;
   private ListView peerListView;
+
+  private boolean mIsBound;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -52,20 +54,11 @@ public class StartActivity extends Activity {
       }
     });
 
-    peerListView = (ListView) findViewById(R.id.peer_list);
-  }
+      peerListView = (ListView) findViewById(R.id.peer_list);
 
-  /* register the broadcast receiver with the intent values to be matched */
-  @Override
-  protected void onResume() {
-    super.onResume();
-    findAGameServer();
-  }
-  /* unregister the broadcast receiver */
-  @Override
-  protected void onPause() {
-    super.onPause();
-    unregisterReceiver(p2pReceiver);
+      doBindService();
+      Intent intent = new Intent(this, PokerService.class);
+      startService(intent);
   }
 
   @Override
@@ -87,55 +80,53 @@ public class StartActivity extends Activity {
     return super.onOptionsItemSelected(item);
   }
 
-  private void findAGameServer() {
-    p2pManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-    p2pChannel = p2pManager.initialize(this, getMainLooper(), null);
-    p2pReceiver = new WiFiDirectBroadcastReceiver();
+    private ServiceConnection mConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            // This is called when the connection with the service has been
+            // established, giving us the service object we can use to
+            // interact with the service.  Because we have bound to a explicit
+            // service that we know is running in our own process, we can
+            // cast its IBinder to a concrete class and directly access it.
+            mBoundService = ((PokerService.LocalBinder)service).getService();
 
-    IntentFilter intentFilter = new IntentFilter();
-    intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
-    registerReceiver(p2pReceiver, intentFilter);
-
-    p2pManager.discoverPeers(p2pChannel, new WifiP2pManager.ActionListener() {
-      @Override
-      public void onSuccess() {
-      }
-
-      @Override
-      public void onFailure(int reasonCode) {
-        Toast.makeText(StartActivity.this, "failed finding peers", Toast.LENGTH_LONG).show();
-      }
-    });
-  }
-
-  /**
-   * A BroadcastReceiver that notifies of important Wi-Fi p2p events.
-   */
-  public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
-
-    public WiFiDirectBroadcastReceiver() {
-      super();
-    }
-
-    @Override
-    public void onReceive(Context context, Intent intent) {
-      String action = intent.getAction();
-      Toast.makeText(StartActivity.this, "onReceive: " + intent.toString(), Toast.LENGTH_LONG).show();
-      if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
-        if (p2pManager != null) {
-          p2pManager.requestPeers(p2pChannel, new PokerPeerListListener());
+            // Tell the user about this for our demo.
+            Toast.makeText(StartActivity.this, "service connected",
+                    Toast.LENGTH_SHORT).show();
         }
-      }
-    }
-  }
 
-  public class PokerPeerListListener implements PeerListListener {
+        public void onServiceDisconnected(ComponentName className) {
+            // This is called when the connection with the service has been
+            // unexpectedly disconnected -- that is, its process crashed.
+            // Because it is running in our same process, we should never
+            // see this happen.
+            mBoundService = null;
+            Toast.makeText(StartActivity.this, "service disconnected",
+                    Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    void doBindService() {
+        // Establish a connection with the service.  We use an explicit
+        // class name because we want a specific service implementation that
+        // we know will be running in our own process (and thus won't be
+        // supporting component replacement by other applications).
+        bindService(new Intent(StartActivity.this,
+                PokerService.class), mConnection, Context.BIND_AUTO_CREATE);
+        mIsBound = true;
+    }
+
+    void doUnbindService() {
+        if (mIsBound) {
+            // Detach our existing connection.
+            unbindService(mConnection);
+            mIsBound = false;
+        }
+    }
 
     @Override
-    public void onPeersAvailable(WifiP2pDeviceList wifiP2pDeviceList) {
-      peerListView.setAdapter(new PeerListAdapter(StartActivity.this, wifiP2pDeviceList));
-      Toast.makeText(StartActivity.this, wifiP2pDeviceList.getDeviceList().size() + " devices found", Toast.LENGTH_LONG);
+    protected void onDestroy() {
+        super.onDestroy();
+        doUnbindService();
     }
-  }
 
 }

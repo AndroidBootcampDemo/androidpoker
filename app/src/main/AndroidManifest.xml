@@ -25,6 +25,10 @@
             android:name=".PokerTableActivity"
             android:label="@string/app_name">
         </activity>
+        <service
+            android:name=".PokerService"
+            android:exported="false">
+        </service>
     </application>
 
 </manifest>
