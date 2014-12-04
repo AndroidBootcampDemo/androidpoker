@@ -3,30 +3,54 @@ package com.bootcamp.androidpoker.app;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.bootcamp.androidpoker.app.R;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.StringWriter;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PokerService extends Service {
+
+    public interface MessageListener {
+        public void onMessageReceived(String message);
+    }
+
+    public static String TAG = "PokerService";
+
     private WifiP2pManager p2pManager;
     private WifiP2pManager.Channel p2pChannel;
     private BroadcastReceiver p2pReceiver;
     private IntentFilter intentFilter;
 
     private List<WifiP2pDevice> peerList;
+    private MessageListener messageListener;
 
     public List<WifiP2pDevice> getPeerList() {
         return peerList;
@@ -41,6 +65,10 @@ public class PokerService extends Service {
         PokerService getService() {
             return PokerService.this;
         }
+    }
+
+    public void registerMessageListener(MessageListener listener) {
+        messageListener = listener;
     }
 
     @Override
@@ -86,6 +114,99 @@ public class PokerService extends Service {
                 Toast.makeText(PokerService.this, "failed finding peers", Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    public void sendMessage(String message, String host, int port) {
+        Context context = this.getApplicationContext();
+        int len;
+        Socket socket = new Socket();
+        byte buf[]  = new byte[1024];
+        try {
+            /**
+             * Create a client socket with the host,
+             * port, and timeout information.
+             */
+            socket.bind(null);
+            socket.connect((new InetSocketAddress(host, port)), 500);
+
+            /**
+             * Create a byte stream from a JPEG file and pipe it to the output stream
+             * of the socket. This data will be retrieved by the server device.
+             */
+            OutputStream outputStream = socket.getOutputStream();
+            ContentResolver cr = context.getContentResolver();
+            InputStream inputStream = new ByteArrayInputStream(
+                    message.getBytes(StandardCharsets.UTF_8));
+            while ((len = inputStream.read(buf)) != -1) {
+                outputStream.write(buf, 0, len);
+            }
+            outputStream.close();
+            inputStream.close();
+        } catch (IOException e) {
+            //catch logic
+        }
+
+        /**
+         * Clean up any open sockets when done
+         * transferring or if an exception occurred.
+         */
+        finally {
+            if (socket != null) {
+                if (socket.isConnected()) {
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        //catch logic
+                    }
+                }
+            }
+        }
+    }
+
+    public class MessageReceiverTask extends AsyncTask<Void, Void, String> {
+
+        private Context context;
+
+        public MessageReceiverTask(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+
+                /**
+                 * Create a server socket and wait for client connections. This
+                 * call blocks until a connection is accepted from a client
+                 */
+                ServerSocket serverSocket = new ServerSocket(8888);
+                Socket client = serverSocket.accept();
+
+                InputStream inputstream = client.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputstream));
+                StringWriter writer = new StringWriter();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    writer.append(line);
+                }
+                reader.close();
+
+                return writer.toString();
+            } catch (IOException e) {
+                Log.e(PokerService.TAG, e.getMessage());
+                return null;
+            }
+        }
+
+        /**
+         * Start activity that can handle the JPEG image
+         */
+        @Override
+        protected void onPostExecute(String result) {
+            if (result != null) {
+                messageListener.onMessageReceived(result);
+            }
+        }
     }
 
     /**
