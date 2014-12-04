@@ -26,7 +26,6 @@ public class PokerActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        doBindService();
 
     }
 
@@ -55,7 +54,7 @@ public class PokerActivity extends Activity {
         }
     };
 
-    void doBindService() {
+    protected void doBindService() {
         // Establish a connection with the service.  We use an explicit
         // class name because we want a specific service implementation that
         // we know will be running in our own process (and thus won't be
@@ -65,17 +64,11 @@ public class PokerActivity extends Activity {
         mIsBound = true;
     }
 
-    void doUnbindService() {
+    protected void doUnbindService() {
         if (mIsBound) {
             // Detach our existing connection.
             unbindService(mConnection);
             mIsBound = false;
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        doUnbindService();
     }
 }

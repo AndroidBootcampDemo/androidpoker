@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Activity that runs on the tablet and shows the poker table.
  */
-public class PokerTableActivity extends Activity {
+public class PokerTableActivity extends PokerActivity {
 
   class User {
 

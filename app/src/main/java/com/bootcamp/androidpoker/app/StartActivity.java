@@ -24,7 +24,7 @@ import android.widget.Toast;
 /**
  * Activity for creating a meme.
  */
-public class StartActivity extends Activity {
+public class StartActivity extends PokerActivity {
 
   private ListView peerListView;
 
@@ -55,6 +55,7 @@ public class StartActivity extends Activity {
 
       Intent intent = new Intent(this, PokerService.class);
       startService(intent);
+      doBindService();
   }
 
   @Override
