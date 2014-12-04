@@ -30,6 +30,8 @@ import java.util.List;
  */
 public class StartActivity extends PokerActivity {
 
+    public static final String SERVER_ADDRESS_EXTRA = "server-address";
+
   private ListView peerListView;
     private PeerListAdapter adapter;
 
@@ -76,7 +78,11 @@ public class StartActivity extends PokerActivity {
               if (i >= adapterView.getCount()) {
                   return;
               }
-              mBoundService.connectToPlayer(((WifiP2pDevice) adapter.getItem(i)).deviceAddress);
+              String deviceAddress = ((WifiP2pDevice) adapter.getItem(i)).deviceAddress;
+              Intent intent = new Intent(StartActivity.this, PokerHandActivity.class);
+              intent.putExtra(SERVER_ADDRESS_EXTRA, deviceAddress);
+              startActivity(intent);
+              mBoundService.connectToPlayer(deviceAddress);
           }
       });
 
@@ -85,7 +91,13 @@ public class StartActivity extends PokerActivity {
       doBindService();
   }
 
-  @Override
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mBoundService.stopSelf();
+    }
+
+    @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     // Inflate the menu; this adds items to the action bar if it is present.
     getMenuInflater().inflate(R.menu.main_menu, menu);

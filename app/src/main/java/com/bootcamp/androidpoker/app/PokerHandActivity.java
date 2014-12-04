@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Created by freopen on 12/4/14.
@@ -18,6 +19,9 @@ public class PokerHandActivity extends android.support.v4.app.FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_poker_hand);
+
+        String serverAddress = getIntent().getStringExtra(StartActivity.SERVER_ADDRESS_EXTRA);
+        Toast.makeText(this, "game with server " + serverAddress, Toast.LENGTH_SHORT).show();
 
         communicator = new ClientCommunicator() {
             @Override
