@@ -56,7 +56,7 @@ public class Card implements Comparable<Card> {
     
     /** The rank symbols. */
     public static final String[] RANK_SYMBOLS = {
-        "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"
+        "2", "3", "4", "5", "6", "7", "8", "9", "10", "j", "q", "k", "a"
     };
     
     /** The suit symbols. */
