@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
@@ -17,9 +18,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import java.util.List;
 
 /**
  * Activity for creating a meme.
@@ -27,6 +31,7 @@ import android.widget.Toast;
 public class StartActivity extends PokerActivity {
 
   private ListView peerListView;
+    private PeerListAdapter adapter;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +56,29 @@ public class StartActivity extends PokerActivity {
       }
     });
 
+      Button findServersButton = (Button) findViewById(R.id.button_find_servers);
+      findServersButton.setOnClickListener(new OnClickListener() {
+          @Override
+          public void onClick(View view) {
+              List<WifiP2pDevice> peerList = mBoundService.getPeerList();
+              if (peerList == null) {
+                  return;
+              }
+              adapter = new PeerListAdapter(StartActivity.this, peerList);
+              peerListView.setAdapter(adapter);
+          }
+      });
+
       peerListView = (ListView) findViewById(R.id.peer_list);
+      peerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+          @Override
+          public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+              if (i >= adapterView.getCount()) {
+                  return;
+              }
+              mBoundService.connectToPlayer(((WifiP2pDevice) adapter.getItem(i)).deviceAddress);
+          }
+      });
 
       Intent intent = new Intent(this, PokerService.class);
       startService(intent);
