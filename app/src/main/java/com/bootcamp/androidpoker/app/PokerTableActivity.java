@@ -16,7 +16,10 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Activity that runs on the tablet and shows the poker table.
@@ -141,4 +144,72 @@ public class PokerTableActivity extends PokerActivity {
       return inflater.inflate(R.layout.fragment_player_list, container, false);
     }
   }
+
+    private class ActivityTableObserver implements TableObserver {
+        /** Table type (betting structure). */
+        private final TableType TABLE_TYPE = TableType.NO_LIMIT;
+
+        /** The size of the big blind. */
+        private static final int BIG_BLIND = 10;
+
+        /** The starting cash per player. */
+        private final int STARTING_CASH = 500;
+
+        /** The table. */
+        private final Table table;
+
+        /** The players at the table. */
+        private final Map<String, Player> players;
+
+        /** The current dealer's name. */
+        private String dealerName;
+
+        /** The current actor's name. */
+        private String actorName;
+
+        public ActivityTableObserver() {
+            table = new Table(TABLE_TYPE, this, BIG_BLIND);
+            players = new LinkedHashMap<String, Player>();
+        }
+
+
+
+        @Override
+        public void messageReceived(String message) {
+        }
+
+        @Override
+        public void joinedTable(TableType type, int bigBlind, List<Player> players) {
+        }
+
+        @Override
+        public void handStarted(Player dealer) {
+
+        }
+
+        @Override
+        public void actorRotated(Player actor) {
+
+        }
+
+        @Override
+        public void playerUpdated(Player player) {
+
+        }
+
+        @Override
+        public void boardUpdated(List<Card> cards, int bet, int pot) {
+
+        }
+
+        @Override
+        public void playerActed(Player player) {
+
+        }
+
+        @Override
+        public Action act(int minBet, int currentBet, Set<Action> allowedActions) {
+            return null;
+        }
+    }
 }
