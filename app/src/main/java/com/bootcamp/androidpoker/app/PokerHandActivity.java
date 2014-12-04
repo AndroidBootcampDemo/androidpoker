@@ -8,12 +8,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.List;
+
 /**
  * Created by freopen on 12/4/14.
  */
 public class PokerHandActivity extends PokerActivity {
     public ClientCommunicator communicator;
     public int currentCash = 152;
+    public int minBet;
+    public int currentBet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,17 +54,58 @@ public class PokerHandActivity extends PokerActivity {
                 TextView cashValue = (TextView) findViewById(R.id.cash_value);
                 cashValue.setText("$" + currentCash);
             }
+
+            @Override
+            void onEnableActions(List<String> actions) {
+                final Button callButton = (Button) findViewById(R.id.call_button);
+                final Button raiseButton = (Button) findViewById(R.id.raise_button);
+                final Button foldButton = (Button) findViewById(R.id.fold_button);
+                callButton.setEnabled(false);
+                raiseButton.setEnabled(false);
+                foldButton.setEnabled(false);
+
+                if (actions.contains("call")) {
+                    callButton.setEnabled(true);
+                    callButton.setText("Call");
+                }
+                if (actions.contains("check")) {
+                    callButton.setEnabled(true);
+                    callButton.setText("Check");
+                }
+                if (actions.contains("raise")) {
+                    raiseButton.setEnabled(true);
+                }
+                if (actions.contains("fold")) {
+                    foldButton.setEnabled(true);
+                }
+
+            }
+
+            @Override
+            void OnUpdateBetInfo(int minBet, int currentBet) {
+                PokerHandActivity.this.minBet = minBet;
+                PokerHandActivity.this.currentBet = currentBet;
+            }
         };
 
-        Button callButton = (Button) findViewById(R.id.call_button);
+        final Button callButton = (Button) findViewById(R.id.call_button);
+        final Button raiseButton = (Button) findViewById(R.id.raise_button);
+        final Button foldButton = (Button) findViewById(R.id.fold_button);
+
         callButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                communicator.call();
+                if (callButton.getText() == "Call") {
+                    communicator.call();
+                } else {
+                    communicator.check();
+                }
+                callButton.setEnabled(false);
+                raiseButton.setEnabled(false);
+                foldButton.setEnabled(false);
             }
         });
 
-        Button raiseButton = (Button) findViewById(R.id.raise_button);
         raiseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -68,11 +113,13 @@ public class PokerHandActivity extends PokerActivity {
             }
         });
 
-        Button foldButton = (Button) findViewById(R.id.fold_button);
         foldButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 communicator.fold();
+                callButton.setEnabled(false);
+                raiseButton.setEnabled(false);
+                foldButton.setEnabled(false);
             }
         });
     }

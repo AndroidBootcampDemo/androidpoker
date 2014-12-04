@@ -9,8 +9,6 @@ import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.bootcamp.androidpoker.app.R;
-
 /**
  * Created by freopen on 12/4/14.
  */
@@ -48,6 +46,12 @@ public class RaiseSliderFragment extends DialogFragment {
             @Override
             public void onClick(View view) {
                 activity.communicator.raise(raiseAmountBar.getProgress() + 1);
+                final Button callButton = (Button) activity.findViewById(R.id.call_button);
+                final Button raiseButton = (Button) activity.findViewById(R.id.raise_button);
+                final Button foldButton = (Button) activity.findViewById(R.id.fold_button);
+                callButton.setEnabled(false);
+                raiseButton.setEnabled(false);
+                foldButton.setEnabled(false);
                 dismiss();
             }
         });
