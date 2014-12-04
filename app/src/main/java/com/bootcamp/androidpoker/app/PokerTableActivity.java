@@ -26,11 +26,7 @@ public class PokerTableActivity extends Activity {
   class User {
 
   }
-  private static final int UNKNOWN_WIFI_STATE = -1;
-  WifiP2pManager p2pManager;
-  Channel p2pChannel;
-  BroadcastReceiver p2pReceiver;
-  IntentFilter intentFilter;
+
   // maybe User object instead of string
   List<User> usersConnected = new ArrayList<User>();
 
@@ -48,33 +44,17 @@ public class PokerTableActivity extends Activity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_poker_table);
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-    createWifiGroup();
   }
 
   /* register the broadcast receiver with the intent values to be matched */
   @Override
   protected void onResume() {
     super.onResume();
-    registerReceiver(p2pReceiver, intentFilter);
   }
   /* unregister the broadcast receiver */
   @Override
   protected void onPause() {
     super.onPause();
-    unregisterReceiver(p2pReceiver);
-  }
-
-  private void createWifiGroup() {
-    intentFilter = new IntentFilter();
-    intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
-    intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
-    intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
-    //intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
-
-    p2pManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-    p2pChannel = p2pManager.initialize(this, getMainLooper(), null);
-    p2pReceiver = new WiFiDirectBroadcastReceiver(p2pManager, p2pChannel);
   }
 
   /**
