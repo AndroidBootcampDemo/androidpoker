@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Poker</string>
+    <string name="create_game">Create game</string>
+    <string name="join_game">Join game</string>
+    <string name="action_settings">Settings</string>
+    <string name="first_card">First card</string>
+    <string name="second_card">Second card</string>
+    <string name="third_card">Third card</string>
+    <string name="fourth_card">Fourth card</string>
+    <string name="fifth_card">Fifth card</string>
+    <string name="bank">Bank</string>
+
+</resources>

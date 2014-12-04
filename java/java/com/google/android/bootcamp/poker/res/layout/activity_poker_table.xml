@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              tools:context="com.google.android.bootcamp.poker.PokerTableActivity">
+
+    <fragment
+            android:id="@+id/cards"
+            android:name="com.google.android.bootcamp.poker.PokerTableActivity$CardsFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            tools:layout="@layout/fragment_cards_on_table"/>
+
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+        <fragment
+                android:id="@+id/players"
+                android:name="com.google.android.bootcamp.poker.PokerTableActivity$PlayerListFragment"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                tools:layout="@layout/fragment_player_list"/>
+
+        <TextView
+                android:id="@+id/bank"
+                android:text="@string/bank"
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:contentDescription="@string/bank"/>
+
+
+    </LinearLayout>
+
+</LinearLayout>
