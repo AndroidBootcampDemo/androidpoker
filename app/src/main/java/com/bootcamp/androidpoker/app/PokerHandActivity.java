@@ -1,4 +1,4 @@
-package com.google.android.bootcamp.poker;
+package com.bootcamp.androidpoker.app;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;

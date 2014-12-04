@@ -1,4 +1,4 @@
-package com.google.android.bootcamp.poker;
+package com.bootcamp.androidpoker.app;
 
 /**
  * Created by freopen on 12/4/14.

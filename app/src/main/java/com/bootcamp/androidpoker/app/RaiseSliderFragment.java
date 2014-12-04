@@ -1,4 +1,4 @@
-package com.google.android.bootcamp.poker;
+package com.bootcamp.androidpoker.app;
 
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.bootcamp.androidpoker.app.R;
 
 /**
  * Created by freopen on 12/4/14.

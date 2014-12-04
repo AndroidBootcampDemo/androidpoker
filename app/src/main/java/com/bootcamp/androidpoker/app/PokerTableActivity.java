@@ -13,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -176,6 +178,7 @@ public class PokerTableActivity extends PokerActivity {
 
         @Override
         public void messageReceived(String message) {
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
         }
 
         @Override
@@ -199,7 +202,23 @@ public class PokerTableActivity extends PokerActivity {
 
         @Override
         public void boardUpdated(List<Card> cards, int bet, int pot) {
-
+            ((TextView)findViewById(R.id.bet)).setText(R.id.bet + " $" + bet);
+            ((TextView)findViewById(R.id.pot)).setText(R.id.pot + " $" + pot);
+            int noOfCards = (cards == null) ? 0 : cards.size();
+            for (int i = 0; i < noOfCards; i++) {
+                ImageView imageView = null;
+                if (i == 0)
+                    imageView = (ImageView) findViewById(R.id.first_card);
+                else if (i == 1)
+                    imageView = (ImageView) findViewById(R.id.second_card);
+                else if (i == 2)
+                    imageView = (ImageView) findViewById(R.id.third_card);
+                else if (i == 3)
+                    imageView = (ImageView) findViewById(R.id.fourth_card);
+                else if (i == 4)
+                    imageView = (ImageView) findViewById(R.id.fifth_card);
+                // TODO: set card picture
+            }
         }
 
         @Override
