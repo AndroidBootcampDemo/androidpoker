@@ -49,6 +49,14 @@ public class PokerTableActivity extends PokerActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_poker_table);
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+    ActivityTableObserver tableObserver = new ActivityTableObserver();
+    List<Card> cards = new ArrayList<Card>();
+    cards.add(new Card(1, 1));
+    cards.add(new Card(2, 2));
+    cards.add(new Card(3, 3));
+    tableObserver.boardUpdated(cards, 10, 50);
+
   }
 
   /* register the broadcast receiver with the intent values to be matched */
@@ -202,8 +210,8 @@ public class PokerTableActivity extends PokerActivity {
 
         @Override
         public void boardUpdated(List<Card> cards, int bet, int pot) {
-            ((TextView)findViewById(R.id.bet)).setText(R.id.bet + " $" + bet);
-            ((TextView)findViewById(R.id.pot)).setText(R.id.pot + " $" + pot);
+            ((TextView)findViewById(R.id.bet)).setText("Bet" + " $" + bet);
+            ((TextView)findViewById(R.id.pot)).setText("Pot" + " $" + pot);
             int noOfCards = (cards == null) ? 0 : cards.size();
             for (int i = 0; i < noOfCards; i++) {
                 ImageView imageView = null;
@@ -217,7 +225,12 @@ public class PokerTableActivity extends PokerActivity {
                     imageView = (ImageView) findViewById(R.id.fourth_card);
                 else if (i == 4)
                     imageView = (ImageView) findViewById(R.id.fifth_card);
-                // TODO: set card picture
+                Card currentCard = cards.get(i);
+                String rank = Card.RANK_SYMBOLS[currentCard.getRank()];
+                char suit = Card.SUIT_SYMBOLS[currentCard.getSuit()];
+                String cardName = "card_" + rank + suit;
+                int id = getResources().getIdentifier(cardName, "drawable", getPackageName());
+                imageView.setImageResource(id);
             }
         }
 
