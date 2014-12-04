@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,7 +18,7 @@ import android.widget.Toast;
 /**
  * Activity superclass.
  */
-public class PokerActivity extends Activity {
+public class PokerActivity extends FragmentActivity {
 
     protected PokerService mBoundService;
 

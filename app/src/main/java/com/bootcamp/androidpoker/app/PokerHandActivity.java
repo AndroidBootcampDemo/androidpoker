@@ -11,7 +11,7 @@ import android.widget.Toast;
 /**
  * Created by freopen on 12/4/14.
  */
-public class PokerHandActivity extends android.support.v4.app.FragmentActivity {
+public class PokerHandActivity extends PokerActivity {
     public ClientCommunicator communicator;
     public int currentCash = 152;
 
