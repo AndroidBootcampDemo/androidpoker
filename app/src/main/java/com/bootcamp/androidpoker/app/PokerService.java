@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Binder;
@@ -15,11 +16,20 @@ import android.widget.Toast;
 
 import com.bootcamp.androidpoker.app.R;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PokerService extends Service {
     private WifiP2pManager p2pManager;
     private WifiP2pManager.Channel p2pChannel;
     private BroadcastReceiver p2pReceiver;
     private IntentFilter intentFilter;
+
+    private List<WifiP2pDevice> peerList;
+
+    public List<WifiP2pDevice> getPeerList() {
+        return peerList;
+    }
 
     /**
      * Class for clients to access.  Because we know this service always
@@ -84,7 +94,7 @@ public class PokerService extends Service {
 
         @Override
         public void onPeersAvailable(WifiP2pDeviceList wifiP2pDeviceList) {
-            Toast.makeText(PokerService.this, wifiP2pDeviceList.getDeviceList().size() + " devices found", Toast.LENGTH_LONG);
+            peerList = new ArrayList<WifiP2pDevice>(wifiP2pDeviceList.getDeviceList());
         }
     }
 

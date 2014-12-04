@@ -11,5 +11,6 @@
     <string name="fourth_card">Fourth card</string>
     <string name="fifth_card">Fifth card</string>
     <string name="bank">Bank</string>
+    <string name="find_servers">Find servers</string>
 
 </resources>

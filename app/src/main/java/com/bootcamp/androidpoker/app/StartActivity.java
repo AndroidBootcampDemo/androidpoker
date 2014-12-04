@@ -51,6 +51,14 @@ public class StartActivity extends PokerActivity {
       }
     });
 
+      Button findServersButton = (Button) findViewById(R.id.button_find_servers);
+      findServersButton.setOnClickListener(new OnClickListener() {
+          @Override
+          public void onClick(View view) {
+              peerListView.setAdapter(new PeerListAdapter(StartActivity.this, mBoundService.getPeerList()));
+          }
+      });
+
       peerListView = (ListView) findViewById(R.id.peer_list);
 
       Intent intent = new Intent(this, PokerService.class);

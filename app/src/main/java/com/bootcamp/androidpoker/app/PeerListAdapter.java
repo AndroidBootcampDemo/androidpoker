@@ -17,14 +17,12 @@ import java.util.List;
  */
 public class PeerListAdapter extends BaseAdapter {
 
-  private WifiP2pDeviceList devices;
   private List<WifiP2pDevice> deviceList;
   private final LayoutInflater layoutInflater;
 
-  public PeerListAdapter(Context context, WifiP2pDeviceList devices) {
-    this.devices = devices;
+  public PeerListAdapter(Context context, List<WifiP2pDevice> devices) {
     this.layoutInflater = LayoutInflater.from(context);
-    this.deviceList = new ArrayList<WifiP2pDevice>(devices.getDeviceList());
+    this.deviceList = devices;
   }
 
   @Override
