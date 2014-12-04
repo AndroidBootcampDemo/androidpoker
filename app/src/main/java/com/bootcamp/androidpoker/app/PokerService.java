@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
@@ -46,6 +47,24 @@ public class PokerService extends Service {
     public void onCreate() {
         Toast.makeText(this, "service onCreate", Toast.LENGTH_SHORT);
         findAGameServer();
+    }
+
+    public void connectToPlayer(String deviceAddress) {
+        Toast.makeText(PokerService.this, "Connecting to " + deviceAddress + "...", Toast.LENGTH_SHORT).show();
+        WifiP2pConfig config = new WifiP2pConfig();
+        config.deviceAddress = deviceAddress;
+        p2pManager.connect(p2pChannel, config, new WifiP2pManager.ActionListener() {
+
+            @Override
+            public void onSuccess() {
+                Toast.makeText(PokerService.this, "Connected to peer", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(int reason) {
+                Toast.makeText(PokerService.this, "Connection to peer failed", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void findAGameServer() {

@@ -32,7 +32,7 @@ public class PeerListAdapter extends BaseAdapter {
 
   @Override
   public Object getItem(int i) {
-    return null;
+    return deviceList.get(i);
   }
 
   @Override
