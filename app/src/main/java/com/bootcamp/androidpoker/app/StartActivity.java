@@ -86,8 +86,6 @@ public class StartActivity extends PokerActivity {
           }
       });
 
-      Intent intent = new Intent(this, PokerService.class);
-      startService(intent);
       doBindService();
   }
 

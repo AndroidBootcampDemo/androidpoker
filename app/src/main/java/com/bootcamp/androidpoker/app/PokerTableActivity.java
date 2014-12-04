@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +27,7 @@ import java.util.Set;
 /**
  * Activity that runs on the tablet and shows the poker table.
  */
-public class PokerTableActivity extends PokerActivity {
+public class PokerTableActivity extends PokerActivity implements PokerService.MessageListener {
 
   class User {
 
@@ -59,16 +60,36 @@ public class PokerTableActivity extends PokerActivity {
 
   }
 
-  /* register the broadcast receiver with the intent values to be matched */
+    @Override
+    public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
+        super.onCreate(savedInstanceState, persistentState);
+        doBindService();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        doUnbindService();
+    }
+
+    /* register the broadcast receiver with the intent values to be matched */
   @Override
   protected void onResume() {
     super.onResume();
+    //mBoundService.registerMessageListener(this);
+    //mBoundService.startReceivingMessages();
   }
   /* unregister the broadcast receiver */
   @Override
   protected void onPause() {
     super.onPause();
+    //mBoundService.stopReceivingMessage();
   }
+
+    @Override
+    public void onMessageReceived(String message) {
+        Toast.makeText(this, "Received message: " + message, Toast.LENGTH_LONG);
+    }
 
   /**
    * A BroadcastReceiver that notifies of important Wi-Fi p2p events.

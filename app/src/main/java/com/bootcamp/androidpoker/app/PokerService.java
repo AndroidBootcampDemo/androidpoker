@@ -38,6 +38,8 @@ import java.util.List;
 
 public class PokerService extends Service {
 
+    private MessageReceiverTask receiverTask;
+
     public interface MessageListener {
         public void onMessageReceived(String message);
     }
@@ -163,6 +165,17 @@ public class PokerService extends Service {
         }
     }
 
+    public void startReceivingMessages() {
+        receiverTask = new MessageReceiverTask(this);
+        receiverTask.execute();
+    }
+
+    public void stopReceivingMessage() {
+        if (receiverTask != null) {
+            receiverTask.cancel(true);
+        }
+    }
+
     public class MessageReceiverTask extends AsyncTask<Void, Void, String> {
 
         private Context context;
@@ -206,6 +219,9 @@ public class PokerService extends Service {
             if (result != null) {
                 messageListener.onMessageReceived(result);
             }
+            // Start a new listener task.
+            receiverTask = new MessageReceiverTask(context);
+            receiverTask.execute();
         }
     }
 
