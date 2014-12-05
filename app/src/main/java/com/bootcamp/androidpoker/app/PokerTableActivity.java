@@ -8,8 +8,6 @@ import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.wifi.p2p.WifiP2pManager;
-import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -76,7 +74,6 @@ public class PokerTableActivity extends PokerActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Toast.makeText(this, "on result", Toast.LENGTH_SHORT).show();
         runGame();
     }
 
@@ -173,69 +170,6 @@ public class PokerTableActivity extends PokerActivity {
     doUnbindService();
   }
 
-  /**
-   * A BroadcastReceiver that notifies of important Wi-Fi p2p events.
-   */
-  public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
-
-    private WifiP2pManager mManager;
-    private Channel mChannel;
-
-    public WiFiDirectBroadcastReceiver(WifiP2pManager manager, Channel channel) {
-      super();
-      this.mManager = manager;
-      this.mChannel = channel;
-    }
-
-    @Override
-    public void onReceive(Context context, Intent intent) {
-      String action = intent.getAction();
-
-      if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
-        handleWifiStateChanged(context, intent);
-      } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
-        handleWifiPeersChanged(context, intent);
-      } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
-        handleWifiConnectionChanged(context, intent);
-      }
-      /*else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
-        handleWifiThisDeviceChanged(context, intent);
-      } */
-    }
-
-    private void handleWifiStateChanged(Context context, Intent intent) {
-      int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
-      if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
-        Toast.makeText(context, "P2p now enabled", Toast.LENGTH_SHORT).show();
-      } else if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
-        Toast.makeText(context, "Error: P2p not enabled. Please enable to play.",
-            Toast.LENGTH_LONG).show();
-      setUsersConnected(new ArrayList<User>());
-      } else {
-        Toast.makeText(context, "Error: update to wifi p2p did not specify state!",
-            Toast.LENGTH_SHORT).show();
-      }
-    }
-
-    private void handleWifiPeersChanged(Context context, Intent intent) {
-//      this.mManager.requestPeers(mChannel, );
-      // Call WifiP2pManager.requestPeers() to get a list of current peers
-      // update connectd users list
-      // display update
-    }
-
-    private void handleWifiConnectionChanged(Context context, Intent intent) {
-      // Respond to new connection or disconnections
-      // not sure yet
-    }
-
-    /* public void handleWifiThisDeviceChanged(Context context, Intent intent) {
-      // Respond to this device's wifi state changing: not sure this is necessary. may
-      // usersList = null
-      // update ui with message of need to turn on wifi
-    } */
-  }
-
   public static class CardsFragment extends Fragment {
     @Override
     public View onCreateView(
@@ -275,7 +209,7 @@ public class PokerTableActivity extends PokerActivity {
             mainHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
+//                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
                     Log.d(TAG, "messageReceived");
                 }
             });

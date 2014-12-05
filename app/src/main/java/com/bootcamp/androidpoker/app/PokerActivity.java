@@ -44,9 +44,6 @@ public class PokerActivity extends FragmentActivity {
             // cast its IBinder to a concrete class and directly access it.
             mBoundService = ((PokerService.LocalBinder)service).getService();
 
-            // Tell the user about this for our demo.
-            Toast.makeText(PokerActivity.this, "service connected",
-                    Toast.LENGTH_SHORT).show();
             if (bindingCallback != null) {
                 bindingCallback.onBoundToService();
             }
@@ -58,8 +55,6 @@ public class PokerActivity extends FragmentActivity {
             // Because it is running in our same process, we should never
             // see this happen.
             mBoundService = null;
-            Toast.makeText(PokerActivity.this, "service disconnected",
-                    Toast.LENGTH_SHORT).show();
         }
     };
 

@@ -16,7 +16,6 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.io.IOException;
 
@@ -153,7 +152,6 @@ public class StartActivity extends PokerActivity {
         @Override
         protected void onPostExecute(BluetoothSocket bluetoothSocket) {
             if (mmSocket != null) {
-                Toast.makeText(StartActivity.this, "have socket!", Toast.LENGTH_SHORT).show();
                 mBoundService.clientSocket = mmSocket;
                 Intent intent = new Intent(StartActivity.this, PokerHandActivity.class);
                 startActivity(intent);
