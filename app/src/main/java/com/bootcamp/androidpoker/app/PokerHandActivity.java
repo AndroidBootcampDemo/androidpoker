@@ -1,6 +1,8 @@
 package com.bootcamp.androidpoker.app;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.View;
@@ -20,6 +22,8 @@ public class PokerHandActivity extends PokerActivity {
     public int minBet;
     public int currentBet;
 
+    private Vibrator vibrator;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,12 +36,14 @@ Log.d("igsolla", "PokerHandActivity onCreate");
                 onBound();
             }
         });
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
     }
 
     void onBound() {
         communicator = new ClientCommunicator(mBoundService.clientSocket) {
             @Override
             void onShowCards(String first, String second) {
+                vibrate();
                 ImageView handFirst = (ImageView) findViewById(R.id.hand_first);
                 int firstId = getResources().getIdentifier("card_" + first, "drawable", getPackageName());
                 handFirst.setImageResource(firstId);
@@ -50,6 +56,7 @@ Log.d("igsolla", "PokerHandActivity onCreate");
 
             @Override
             void onHideCards() {
+                vibrate();
                 ImageView handFirst = (ImageView) findViewById(R.id.hand_first);
                 handFirst.setImageResource(R.drawable.card_blue_back);
 
@@ -60,6 +67,7 @@ Log.d("igsolla", "PokerHandActivity onCreate");
 
             @Override
             void onChangeCash(int cash) {
+                vibrate();
                 currentCash = cash;
                 TextView cashValue = (TextView) findViewById(R.id.cash_value);
                 cashValue.setText("$" + currentCash);
@@ -68,6 +76,7 @@ Log.d("igsolla", "PokerHandActivity onCreate");
 
             @Override
             void onEnableActions(List<String> actions) {
+                vibrate();
                 final Button callButton = (Button) findViewById(R.id.call_button);
                 final Button raiseButton = (Button) findViewById(R.id.raise_button);
                 final Button foldButton = (Button) findViewById(R.id.fold_button);
@@ -138,6 +147,10 @@ Log.d("igsolla", "PokerHandActivity onCreate");
         });
 
         communicator.listenForInput();
+    }
+
+    void vibrate() {
+        vibrator.vibrate(100);
     }
 
 

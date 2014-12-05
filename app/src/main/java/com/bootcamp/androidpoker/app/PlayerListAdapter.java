@@ -47,7 +47,7 @@ public class PlayerListAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup parent) {
         TextView textView = (TextView) layoutInflater.inflate(
-                R.layout.peer_list_item, parent, false /* attachToRoot */);
+                android.R.layout.simple_list_item_1, parent, false /* attachToRoot */);
         textView.setTextSize(35);
         textView.setPadding(20, 0, 0, 0);
 

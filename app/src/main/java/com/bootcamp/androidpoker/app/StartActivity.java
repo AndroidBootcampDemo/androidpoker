@@ -16,7 +16,6 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.io.IOException;
 
@@ -41,23 +40,30 @@ public class StartActivity extends PokerActivity {
       }
     });
 
+      final Button joinGameButton = (Button) findViewById(R.id.button_join_game);
       IntentFilter intentFilter = new IntentFilter();
       intentFilter.addAction(BluetoothDevice.ACTION_FOUND);
+      intentFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+      intentFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
       BroadcastReceiver receiver = new BroadcastReceiver() {
           @Override
           public void onReceive(Context context, Intent intent) {
               if (BluetoothDevice.ACTION_FOUND.equals(intent.getAction())) {
                   BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                   adapter.addDevice(device);
+              } else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(intent.getAction())) {
+                  joinGameButton.setEnabled(false);
+              } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(intent.getAction())) {
+                  joinGameButton.setEnabled(true);
               }
           }
       };
       registerReceiver(receiver, intentFilter);
 
-    Button joinGameButton = (Button) findViewById(R.id.button_join_game);
     joinGameButton.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View view) {
+        adapter.reset();
         BluetoothAdapter.getDefaultAdapter().startDiscovery();
       }
     });
@@ -146,7 +152,6 @@ public class StartActivity extends PokerActivity {
         @Override
         protected void onPostExecute(BluetoothSocket bluetoothSocket) {
             if (mmSocket != null) {
-                Toast.makeText(StartActivity.this, "have socket!", Toast.LENGTH_SHORT).show();
                 mBoundService.clientSocket = mmSocket;
                 Intent intent = new Intent(StartActivity.this, PokerHandActivity.class);
                 startActivity(intent);
