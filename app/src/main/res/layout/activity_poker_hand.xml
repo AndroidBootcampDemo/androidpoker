@@ -19,41 +19,45 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Cash:"
                 android:id="@+id/textView"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:layout_margin="10dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="$152"
-                android:id="@+id/textView2"
+                android:id="@+id/cash_value"
                 android:layout_column="10"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:layout_margin="10dp" />
         </TableRow>
     </TableLayout>
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
-        android:layout_gravity="center_horizontal"
-        android:layout_weight="0.8">
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal">
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
-            android:id="@+id/imageView"
+            android:id="@+id/hand_first"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            android:layout_margin="10dp" />
+            android:layout_margin="10dp"
+            android:src="@drawable/card_blue_back"
+            android:scaleType="fitCenter" />
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
-            android:id="@+id/imageView2"
+            android:id="@+id/hand_second"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            android:layout_margin="10dp" />
+            android:layout_margin="10dp"
+            android:src="@drawable/card_blue_back" />
     </LinearLayout>
 
     <LinearLayout
@@ -66,21 +70,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Call"
-            android:id="@+id/button"
+            android:id="@+id/call_button"
             android:layout_weight="1" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Raise"
-            android:id="@+id/button2"
+            android:id="@+id/raise_button"
             android:layout_weight="1" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Fold"
-            android:id="@+id/button3"
+            android:id="@+id/fold_button"
             android:layout_weight="1" />
     </LinearLayout>
 

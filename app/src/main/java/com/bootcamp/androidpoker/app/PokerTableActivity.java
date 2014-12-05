@@ -12,6 +12,7 @@ import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PersistableBundle;
 import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,10 +20,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ListView;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,7 +34,7 @@ import java.util.Set;
 /**
  * Activity that runs on the tablet and shows the poker table.
  */
-public class PokerTableActivity extends Activity {
+public class PokerTableActivity extends PokerActivity implements PokerService.MessageListener {
 
     private static final TableType TABLE_TYPE = TableType.NO_LIMIT;
     /** The size of the big blind. */
@@ -42,11 +46,6 @@ public class PokerTableActivity extends Activity {
 
   }
 
-  private static final int UNKNOWN_WIFI_STATE = -1;
-  WifiP2pManager p2pManager;
-  Channel p2pChannel;
-  BroadcastReceiver p2pReceiver;
-  IntentFilter intentFilter;
   // maybe User object instead of string
   List<User> usersConnected = new ArrayList<User>();
 
@@ -69,13 +68,17 @@ public class PokerTableActivity extends Activity {
 
     mainHandler = new Handler(getMainLooper());
 
-    createWifiGroup();
+//    ActivityTableObserver tableObserver = new ActivityTableObserver();
+//    List<Card> cards = new ArrayList<Card>();
+//    cards.add(new Card(1, 1));
+//    cards.add(new Card(2, 2));
+//    cards.add(new Card(3, 3));
+//    tableObserver.boardUpdated(cards, 10, 50);
 
-
-      runGame();
+    runGame();
   }
 
-  public void displayPlayersInfo(final Map<String, Player> players) {
+   public void displayPlayersInfo(final Map<String, Player> players) {
         if (Looper.myLooper() != Looper.getMainLooper()) {
             mainHandler.post(new Runnable() {
                 @Override
@@ -91,6 +94,7 @@ public class PokerTableActivity extends Activity {
         fragment.getListView().setAdapter(playersAdapter);
   }
 
+
   private void runGame() {
       new AsyncTask<Void, Void, Void>() {
 
@@ -103,6 +107,14 @@ public class PokerTableActivity extends Activity {
               players.put("Eddie",  new Player("Eddie", STARTING_CASH, new BasicBot(50, 25)));
               UITableObserver tableObserver = new UITableObserver(PokerTableActivity.this);
               displayPlayersInfo(players);
+
+
+              List<Card> cards = new ArrayList<Card>();
+              cards.add(new Card(1, 1));
+              cards.add(new Card(2, 2));
+              cards.add(new Card(3, 3));
+              tableObserver.boardUpdated(cards, 10, 50);
+
               Table table = new Table(TABLE_TYPE, tableObserver, BIG_BLIND);
               for (Player player : players.values()) {
                   table.addPlayer(player);
@@ -119,93 +131,41 @@ public class PokerTableActivity extends Activity {
               // Do nothing.
           }
       }.execute();
+    }
+
+  /** Remove this once the engine is hooked up
+  public void hackTemporaryInitialization(TableObserver tableObserver) {
+      List<Card> cards = new ArrayList<Card>();
+      cards.add(new Card(1, 1));
+      cards.add(new Card(2, 2));
+      cards.add(new Card(3, 3));
+      tableObserver.boardUpdated(cards, 10, 50)
   }
 
-  /* register the broadcast receiver with the intent values to be matched */
+    /* register the broadcast receiver with the intent values to be matched */
   @Override
   protected void onResume() {
     super.onResume();
-    registerReceiver(p2pReceiver, intentFilter);
+    doBindService(new BindingCallback() {
+        @Override
+        public void onBoundToService() {
+            mBoundService.registerMessageListener(PokerTableActivity.this);
+            mBoundService.startReceivingMessages();
+            Toast.makeText(PokerTableActivity.this, "started receiving messages!", Toast.LENGTH_SHORT).show();
+        }
+    });
   }
   /* unregister the broadcast receiver */
   @Override
   protected void onPause() {
     super.onPause();
-    unregisterReceiver(p2pReceiver);
+    mBoundService.stopReceivingMessage();
+    doUnbindService();
   }
 
-  @Override
-  public void onAttachFragment(Fragment fragment) {
-  }
-
-  private void createWifiGroup() {
-    intentFilter = new IntentFilter();
-    intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
-    intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
-    intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
-    //intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
-
-    p2pManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-    p2pChannel = p2pManager.initialize(this, getMainLooper(), null);
-    p2pReceiver = new WiFiDirectBroadcastReceiver(p2pManager, p2pChannel);
-  }
-
-    public class UITableObserver implements TableObserver {
-        private final String TAG = UITableObserver.class.getSimpleName();
-
-        public UITableObserver(Context context) {
-
-        }
-
-        public void messageReceived(String message) {
-        }
-
-        public void joinedTable(TableType type, int bigBlind, List<Player> players) {
-            Log.d(TAG, "joinedTable");
-        }
-
-        public void handStarted(Player dealer) {
-            Log.d(TAG, "handStarted");
-
-        }
-
-        public void actorRotated(Player actor) {
-            Log.d(TAG, "actorRotated");
-
-        }
-
-        public void playerUpdated(final Player player) {
-            if (Looper.myLooper() != Looper.getMainLooper()) {
-                Log.d(TAG, "playerUpdated posting to UI");
-                mainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        playerUpdated(player);
-                    }
-                });
-                return;
-            }
-            Log.d(TAG, "playerUpdated");
-        }
-
-        public void boardUpdated(final List<Card> cards, final int bet, final int pot) {
-            if (Looper.myLooper() != Looper.getMainLooper()) {
-                mainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        boardUpdated(cards, bet, pot);
-                    }
-                });
-                return;
-            }
-            Log.d(TAG, "boardUpdated");
-
-        }
-
-        public void playerActed(Player player) {
-            Log.d(TAG, "playerActed");
-        }
-
+    @Override
+    public void onMessageReceived(String message) {
+        Toast.makeText(this, "Received message: " + message, Toast.LENGTH_LONG);
 
     }
 
@@ -299,4 +259,82 @@ public class PokerTableActivity extends Activity {
         return playerList;
     }
   }
+
+    public class UITableObserver implements TableObserver {
+        private final String TAG = UITableObserver.class.getSimpleName();
+
+        public UITableObserver(Context context) {
+
+        }
+
+        public void messageReceived(final String message) {
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
+                    Log.d(TAG, "messageReceived");
+                }
+            });
+
+        }
+
+        public void joinedTable(TableType type, int bigBlind, List<Player> players) {
+            Log.d(TAG, "joinedTable");
+        }
+
+        public void handStarted(Player dealer) {
+            Log.d(TAG, "handStarted");
+
+        }
+
+        public void actorRotated(Player actor) {
+            Log.d(TAG, "actorRotated");
+
+        }
+
+        public void playerUpdated(final Player player) {
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "playerUpdated");
+                }
+            });
+        }
+
+        public void boardUpdated(final List<Card> cards, final int bet, final int pot) {
+            final List<Card> immutableCards = new ArrayList<Card>(cards);
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "boardUpdated");
+                    ((TextView)findViewById(R.id.bet)).setText("Bet" + " $" + bet);
+                    ((TextView)findViewById(R.id.pot)).setText("Pot" + " $" + pot);
+                    int noOfCards = (immutableCards == null) ? 0 : immutableCards.size();
+                    for (int i = 0; i < noOfCards; i++) {
+                        ImageView imageView = null;
+                        if (i == 0)
+                            imageView = (ImageView) findViewById(R.id.first_card);
+                        else if (i == 1)
+                            imageView = (ImageView) findViewById(R.id.second_card);
+                        else if (i == 2)
+                            imageView = (ImageView) findViewById(R.id.third_card);
+                        else if (i == 3)
+                            imageView = (ImageView) findViewById(R.id.fourth_card);
+                        else if (i == 4)
+                            imageView = (ImageView) findViewById(R.id.fifth_card);
+                        Card currentCard = immutableCards.get(i);
+                        String rank = Card.RANK_SYMBOLS[currentCard.getRank()];
+                        char suit = Card.SUIT_SYMBOLS[currentCard.getSuit()];
+                        String cardName = "card_" + rank + suit;
+                        int id = getResources().getIdentifier(cardName, "drawable", getPackageName());
+                        imageView.setImageResource(id);
+                    }
+                }
+            });
+        }
+
+        public void playerActed(Player player) {
+            Log.d(TAG, "playerActed");
+        }
+    }
 }
