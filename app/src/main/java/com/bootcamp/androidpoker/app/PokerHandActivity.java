@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class PokerHandActivity extends PokerActivity {
     public ClientCommunicator communicator;
-    public int currentCash = 152;
+    public int currentCash = 0;
     public int minBet;
     public int currentBet;
 
@@ -70,6 +70,9 @@ Log.d("igsolla", "PokerHandActivity onCreate");
             @Override
             void onChangeCash(int cash) {
                 vibrate();
+                if (cash > currentCash) {
+                    Toast.makeText(PokerHandActivity.this, "You got money!", Toast.LENGTH_LONG).show();
+                }
                 currentCash = cash;
                 TextView cashValue = (TextView) findViewById(R.id.cash_value);
                 cashValue.setText("$" + currentCash);
