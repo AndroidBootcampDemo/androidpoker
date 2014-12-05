@@ -71,21 +71,24 @@
             android:layout_height="wrap_content"
             android:text="Call"
             android:id="@+id/call_button"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:enabled="false" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Raise"
             android:id="@+id/raise_button"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:enabled="false" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Fold"
             android:id="@+id/fold_button"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:enabled="false" />
     </LinearLayout>
 
 </LinearLayout>
