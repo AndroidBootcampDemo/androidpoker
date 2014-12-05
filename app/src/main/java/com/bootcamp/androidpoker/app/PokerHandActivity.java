@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.FragmentManager;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -34,6 +35,7 @@ public class PokerHandActivity extends PokerActivity {
                 onBound();
             }
         });
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
     }
 
