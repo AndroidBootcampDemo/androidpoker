@@ -67,7 +67,7 @@ public class NetworkPlayer implements Client {
         sendJSON(2, args);
 
         try {
-            final JSONObject response = receiveJSON();
+            final JSONObject response = receiveJSON(mSocket);
             final String action = response.getString("action");
             if (action == "call") {
                 return new CallAction();
@@ -89,17 +89,17 @@ public class NetworkPlayer implements Client {
         try {
             message.put("message_type", message_type);
             message.put("args", args);
-            sendJSON(message);
+            sendJSON(message, mSocket);
         } catch (Exception e) {
             Log.e(TAG, "failed sending message", e);
         }
     }
 
-    private void sendJSON(JSONObject message) throws IOException {
+    public static void sendJSON(JSONObject message, BluetoothSocket socket) throws IOException {
         String string = message.toString();
         Log.d(TAG, "sending message: " + string);
 
-        OutputStream out = mSocket.getOutputStream();
+        OutputStream out = socket.getOutputStream();
 
         byte buf[]  = new byte[1024];
         int len;
@@ -112,8 +112,8 @@ public class NetworkPlayer implements Client {
         Log.d(TAG, "message sent");
     }
 
-    private JSONObject receiveJSON() throws IOException, JSONException {
-        InputStream in = mSocket.getInputStream();
+    public static JSONObject receiveJSON(BluetoothSocket socket) throws IOException, JSONException {
+        InputStream in = socket.getInputStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         StringWriter writer = new StringWriter();
         String line;
