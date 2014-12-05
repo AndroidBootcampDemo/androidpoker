@@ -1,6 +1,8 @@
 package com.bootcamp.androidpoker.app;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.widget.Button;
@@ -19,6 +21,8 @@ public class PokerHandActivity extends PokerActivity {
     public int minBet;
     public int currentBet;
 
+    private Vibrator vibrator;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,12 +34,14 @@ public class PokerHandActivity extends PokerActivity {
                 onBound();
             }
         });
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
     }
 
     void onBound() {
         communicator = new ClientCommunicator(mBoundService.clientSocket) {
             @Override
             void onShowCards(String first, String second) {
+                vibrate();
                 ImageView handFirst = (ImageView) findViewById(R.id.hand_first);
                 int firstId = getResources().getIdentifier("card_" + first, "drawable", getPackageName());
                 handFirst.setImageResource(firstId);
@@ -48,6 +54,7 @@ public class PokerHandActivity extends PokerActivity {
 
             @Override
             void onHideCards() {
+                vibrate();
                 ImageView handFirst = (ImageView) findViewById(R.id.hand_first);
                 handFirst.setImageResource(R.drawable.card_blue_back);
 
@@ -58,6 +65,7 @@ public class PokerHandActivity extends PokerActivity {
 
             @Override
             void onChangeCash(int cash) {
+                vibrate();
                 currentCash = cash;
                 TextView cashValue = (TextView) findViewById(R.id.cash_value);
                 cashValue.setText("$" + currentCash);
@@ -66,6 +74,7 @@ public class PokerHandActivity extends PokerActivity {
 
             @Override
             void onEnableActions(List<String> actions) {
+                vibrate();
                 final Button callButton = (Button) findViewById(R.id.call_button);
                 final Button raiseButton = (Button) findViewById(R.id.raise_button);
                 final Button foldButton = (Button) findViewById(R.id.fold_button);
@@ -134,6 +143,10 @@ public class PokerHandActivity extends PokerActivity {
                 communicator.listenForInput();
             }
         });
+    }
+
+    void vibrate() {
+        vibrator.vibrate(100);
     }
 
 
