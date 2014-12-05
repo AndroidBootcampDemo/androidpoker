@@ -33,15 +33,21 @@ public class NetworkPlayer implements Client {
 
     @Override
     public void handStarted(int cash) {
+        Log.d("igsolla", "server hand started");
+
         JSONObject args = new JSONObject();
         try {
             args.put("cash", cash);
         } catch (JSONException e) {}
         sendJSON(0, args);
+        Log.d("igsolla", "server hand started return");
+
     }
 
     @Override
     public void setCards(List<Card> cards) {
+        Log.d("igsolla", "server set cards");
+
         JSONArray jsonCards = new JSONArray();
         for (int i = 0; i < cards.size(); ++i) {
             jsonCards.put(cards.get(i).toString());
@@ -51,10 +57,13 @@ public class NetworkPlayer implements Client {
             args.put("cards", jsonCards);
         } catch (JSONException e) {}
         sendJSON(1, args);
+        Log.d("igsolla", "server set cards return");
+
     }
 
     @Override
     public Action act(int minBet, int currentBet, Set<Action> allowedActions) {
+        Log.d("igsolla", "server called act on");
         JSONObject args = new JSONObject();
         try {
             args.put("min_bet", minBet);
@@ -63,24 +72,29 @@ public class NetworkPlayer implements Client {
             for (Action action : allowedActions) {
                 jsonActions.put(action.getName());
             }
+            args.put("allowed_actions", jsonActions);
         } catch (JSONException e) {}
         sendJSON(2, args);
+
+        Log.d("igsolla", "waiting for response");
 
         try {
             final JSONObject response = receiveJSON(mSocket);
             final String action = response.getString("action");
-            if (action == "call") {
-                return new CallAction();
-            } else if (action == "raise") {
+            Log.d("igsolla", "response received : " + action);
+            if (action.equals("call")) {
+                return Action.CALL;
+            } else if (action.equals("raise")) {
                 return new RaiseAction(response.getInt("amount"));
-            } else if (action == "fold") {
-                return new FoldAction();
-            } else if (action == "check") {
-                return new CheckAction();
+            } else if (action.equals("fold")) {
+                return Action.FOLD;
+            } else if (action.equals("check")) {
+                return Action.CHECK;
             }
         } catch (Exception e) {
             Log.e(TAG, "failed receiving act", e);
         }
+
         throw new IllegalStateException();
     }
 
@@ -96,7 +110,8 @@ public class NetworkPlayer implements Client {
     }
 
     public static void sendJSON(JSONObject message, BluetoothSocket socket) throws IOException {
-        String string = message.toString();
+        String string = message.toString() + "\n";
+
         Log.d(TAG, "sending message: " + string);
 
         OutputStream out = socket.getOutputStream();
@@ -109,20 +124,20 @@ public class NetworkPlayer implements Client {
         while ((len = inputStream.read(buf)) != -1) {
             out.write(buf, 0, len);
         }
+        out.flush();
         Log.d(TAG, "message sent");
     }
 
     public static JSONObject receiveJSON(BluetoothSocket socket) throws IOException, JSONException {
+        Log.d("igsolla", "we are here!!!");
+
         InputStream in = socket.getInputStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        StringWriter writer = new StringWriter();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            writer.append(line);
-        }
-        reader.close();
-        String message = reader.toString();
-        Log.d(TAG, "received message: " + message);
-        return new JSONObject(message);
+        String line = reader.readLine();
+        Log.d("igsolla", "getting data!!!!");
+//        reader.close();
+
+        Log.d(TAG, "received message: " + line);
+        return new JSONObject(line);
     }
 }

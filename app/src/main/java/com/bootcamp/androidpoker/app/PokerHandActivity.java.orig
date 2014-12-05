@@ -24,8 +24,12 @@ public class PokerHandActivity extends PokerActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_poker_hand);
-Log.d("igsolla", "PokerHandActivity onCreate");
 
+<<<<<<< HEAD
+        String serverAddress = getIntent().getStringExtra(StartActivity.SERVER_ADDRESS_EXTRA);
+        Toast.makeText(this, "game with server " + serverAddress, Toast.LENGTH_SHORT).show();
+        Log.d("igsolla", "PokerHandActivity onCreate");
+=======
         doBindService(new BindingCallback() {
             @Override
             public void onBoundToService() {
@@ -33,6 +37,7 @@ Log.d("igsolla", "PokerHandActivity onCreate");
             }
         });
     }
+>>>>>>> 01d723cd867d1b5882017e9a997ea418637f7877
 
     void onBound() {
         communicator = new ClientCommunicator(mBoundService.clientSocket) {
@@ -75,18 +80,18 @@ Log.d("igsolla", "PokerHandActivity onCreate");
                 raiseButton.setEnabled(false);
                 foldButton.setEnabled(false);
 
-                if (actions.contains("Call")) {
+                if (actions.contains("call")) {
                     callButton.setEnabled(true);
                     callButton.setText("Call");
                 }
-                if (actions.contains("Check")) {
+                if (actions.contains("check")) {
                     callButton.setEnabled(true);
                     callButton.setText("Check");
                 }
-                if (actions.contains("Raise")) {
+                if (actions.contains("raise")) {
                     raiseButton.setEnabled(true);
                 }
-                if (actions.contains("Fold")) {
+                if (actions.contains("fold")) {
                     foldButton.setEnabled(true);
                 }
 
@@ -106,7 +111,7 @@ Log.d("igsolla", "PokerHandActivity onCreate");
         callButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (callButton.getText().equals("Call")) {
+                if (callButton.getText() == "Call") {
                     communicator.call();
                 } else {
                     communicator.check();
@@ -136,8 +141,6 @@ Log.d("igsolla", "PokerHandActivity onCreate");
                 communicator.listenForInput();
             }
         });
-
-        communicator.listenForInput();
     }
 
 

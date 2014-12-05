@@ -2,6 +2,7 @@ package com.bootcamp.androidpoker.app;
 
 import android.bluetooth.BluetoothSocket;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,7 +19,7 @@ public abstract class ClientCommunicator {
 
     private final BluetoothSocket socket;
 
-    public ClientCommunicator(BluetoothSocket socket) {
+    public  ClientCommunicator(BluetoothSocket socket) {
         this.socket = socket;
     }
 
@@ -27,6 +28,7 @@ public abstract class ClientCommunicator {
         try {
             message.put("action", "call");
         } catch (JSONException e) {}
+        Log.d("igsolla", "message");
         sendJSON(message);
     }
 
@@ -58,7 +60,11 @@ public abstract class ClientCommunicator {
     }
 
     private void sendJSON(JSONObject message) {
-
+        try {
+            NetworkPlayer.sendJSON(message, socket);
+        } catch (Exception e) {
+            Log.d("igsolla", "" + e);
+        }
     }
     
     private void parseJSON(JSONObject message) {
@@ -66,11 +72,16 @@ public abstract class ClientCommunicator {
             final int type = message.getInt("message_type");
             final JSONObject args = message.getJSONObject("args");
             if (type == 0) {
+                Log.d("igsolla", "cash message");
                 onChangeCash(args.getInt("cash"));
             } else if (type == 1) {
+                Log.d("igsolla", "cards message");
+
                 JSONArray cards = args.getJSONArray("cards");
                 onShowCards(cards.getString(0), cards.getString(1));
             } else if (type == 2) {
+                Log.d("igsolla", "bet message");
+
                 OnUpdateBetInfo(args.getInt("min_bet"), args.getInt("current_bet"));
                 JSONArray actions = args.getJSONArray("allowed_actions");
                 ArrayList<String> list_actions = new ArrayList<String>();
@@ -93,12 +104,15 @@ public abstract class ClientCommunicator {
     abstract void OnUpdateBetInfo(int minBet, int currentBet);
 
     public void listenForInput() {
+        Log.d("igsolla", "listenForInput begin");
         new AsyncTask<Void, Void, JSONObject>() {
             @Override
             protected JSONObject doInBackground(Void... voids) {
                 JSONObject message = null;
                 try {
+                    Log.d("igsolla", "waiting for message..");
                     message = NetworkPlayer.receiveJSON(socket);
+                    Log.d("igsolla", "message received");
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {

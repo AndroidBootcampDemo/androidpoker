@@ -139,6 +139,11 @@ public class PokerTableActivity extends PokerActivity {
               for (Player player : players.values()) {
                   table.addPlayer(player);
               }
+              try {
+                  Thread.sleep(5000);
+              } catch (Exception e) {
+
+              }
               table.run();
               return null;
           }
