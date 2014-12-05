@@ -277,7 +277,6 @@ public class PokerTableActivity extends PokerActivity implements PokerService.Me
                 @Override
                 public void run() {
                     playersAdapter.updatePlayer(player);
-                    Log.d(TAG, "playerUpdated");
                 }
             });
         }
@@ -289,12 +288,9 @@ public class PokerTableActivity extends PokerActivity implements PokerService.Me
             mainHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Log.d(TAG, "boardUpdated");
-
                     ((TextView)findViewById(R.id.bet)).setText("Bet" + " $" + bet);
                     ((TextView)findViewById(R.id.pot)).setText("Pot" + " $" + pot);
                     int noOfCards = (immutableCards == null) ? 0 : immutableCards.size();
-                    Log.d("igsolla", "boardUpdated noOfCards: " + noOfCards);
                     for (int i = 0; i < noOfCards; i++) {
                         ImageView imageView = null;
                         if (i == 0)

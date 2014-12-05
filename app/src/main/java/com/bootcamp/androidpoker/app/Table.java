@@ -426,7 +426,9 @@ public class Table {
                     throw new IllegalStateException("Invalid action: " + action);
                 }
             }
-            actor.setAction(action);
+            if (action != null) {
+                actor.setAction(action);
+            }
             if (playersToAct > 0) {
                 notifyBoardUpdated();
                 notifyPlayerActed();

@@ -17,6 +17,8 @@
 
 package com.bootcamp.androidpoker.app;
 
+import android.util.Log;
+
 import java.util.List;
 
 /**
@@ -94,7 +96,7 @@ public class Player {
      */
     public void resetBet() {
         bet = 0;
-        action = (hasCards() && cash == 0) ? Action.ALL_IN : null;
+        action = (hasCards() && cash == 0) ? Action.ALL_IN : action;
     }
 
     /**
