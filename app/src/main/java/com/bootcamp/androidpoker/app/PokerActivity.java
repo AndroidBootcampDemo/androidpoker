@@ -20,6 +20,12 @@ import android.widget.Toast;
  */
 public class PokerActivity extends FragmentActivity {
 
+    public interface BindingCallback {
+        void onBoundToService();
+    }
+
+    private BindingCallback bindingCallback;
+
     protected PokerService mBoundService;
 
     protected boolean mIsBound;
@@ -27,7 +33,6 @@ public class PokerActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -42,6 +47,9 @@ public class PokerActivity extends FragmentActivity {
             // Tell the user about this for our demo.
             Toast.makeText(PokerActivity.this, "service connected",
                     Toast.LENGTH_SHORT).show();
+            if (bindingCallback != null) {
+                bindingCallback.onBoundToService();
+            }
         }
 
         public void onServiceDisconnected(ComponentName className) {
@@ -55,7 +63,7 @@ public class PokerActivity extends FragmentActivity {
         }
     };
 
-    protected void doBindService() {
+    protected void doBindService(BindingCallback bindingCallback) {
         // Establish a connection with the service.  We use an explicit
         // class name because we want a specific service implementation that
         // we know will be running in our own process (and thus won't be
@@ -63,6 +71,7 @@ public class PokerActivity extends FragmentActivity {
         bindService(new Intent(PokerActivity.this,
                 PokerService.class), mConnection, Context.BIND_AUTO_CREATE);
         mIsBound = true;
+        this.bindingCallback = bindingCallback;
     }
 
     protected void doUnbindService() {

@@ -69,9 +69,14 @@ public class PokerTableActivity extends PokerActivity implements PokerService.Me
   @Override
   protected void onResume() {
     super.onResume();
-    doBindService();
-    mBoundService.registerMessageListener(this);
-    mBoundService.startReceivingMessages();
+    doBindService(new BindingCallback() {
+        @Override
+        public void onBoundToService() {
+            mBoundService.registerMessageListener(PokerTableActivity.this);
+            mBoundService.startReceivingMessages();
+            Toast.makeText(PokerTableActivity.this, "started receiving messages!", Toast.LENGTH_SHORT).show();
+        }
+    });
   }
   /* unregister the broadcast receiver */
   @Override

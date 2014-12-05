@@ -97,7 +97,7 @@ public class StartActivity extends PokerActivity {
           }
       });
 
-      doBindService();
+      doBindService(null);
   }
 
     @Override
