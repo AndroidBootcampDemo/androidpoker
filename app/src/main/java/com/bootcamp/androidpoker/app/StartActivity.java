@@ -1,19 +1,14 @@
 package com.bootcamp.androidpoker.app;
 
-import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
-import android.net.wifi.p2p.WifiP2pDevice;
-import android.net.wifi.p2p.WifiP2pDeviceList;
-import android.net.wifi.p2p.WifiP2pManager;
-import android.net.wifi.p2p.WifiP2pManager.Channel;
-import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,7 +18,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.util.List;
+import java.io.IOException;
 
 /**
  * Activity for creating a meme.
@@ -48,50 +43,38 @@ public class StartActivity extends PokerActivity {
       }
     });
 
+      IntentFilter intentFilter = new IntentFilter();
+      intentFilter.addAction(BluetoothDevice.ACTION_FOUND);
+      BroadcastReceiver receiver = new BroadcastReceiver() {
+          @Override
+          public void onReceive(Context context, Intent intent) {
+              if (BluetoothDevice.ACTION_FOUND.equals(intent.getAction())) {
+                  BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                  adapter.addDevice(device);
+              }
+          }
+      };
+      registerReceiver(receiver, intentFilter);
+
     Button joinGameButton = (Button) findViewById(R.id.button_join_game);
     joinGameButton.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View view) {
-        // TODO
+        BluetoothAdapter.getDefaultAdapter().startDiscovery();
       }
     });
 
-      Button findServersButton = (Button) findViewById(R.id.button_find_servers);
-      findServersButton.setOnClickListener(new OnClickListener() {
-          @Override
-          public void onClick(View view) {
-              List<WifiP2pDevice> peerList = mBoundService.getPeerList();
-              if (peerList == null) {
-                  return;
-              }
-              adapter = new PeerListAdapter(StartActivity.this, peerList);
-              peerListView.setAdapter(adapter);
-          }
-      });
-
       peerListView = (ListView) findViewById(R.id.peer_list);
+      adapter = new PeerListAdapter(this);
+      peerListView.setAdapter(adapter);
       peerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
           @Override
           public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
               if (i >= adapterView.getCount()) {
                   return;
               }
-              final String deviceAddress = ((WifiP2pDevice) adapter.getItem(i)).deviceAddress;
-//              Intent intent = new Intent(StartActivity.this, PokerHandActivity.class);
-//              intent.putExtra(SERVER_ADDRESS_EXTRA, deviceAddress);
-//              startActivity(intent);
-              mBoundService.connectToPlayer(deviceAddress, new WifiP2pManager.ActionListener() {
-                  @Override
-                  public void onSuccess() {
-                      Toast.makeText(StartActivity.this, "Connected to peer", Toast.LENGTH_SHORT).show();
-                      mBoundService.sendMessage("hello androidpoker", deviceAddress, 8888);
-                  }
-
-                  @Override
-                  public void onFailure(int reason) {
-                      Toast.makeText(StartActivity.this, "Connection to peer failed", Toast.LENGTH_SHORT).show();
-                  }
-              });
+              final BluetoothDevice device = ((BluetoothDevice) adapter.getItem(i));
+              new BluetoothClientConnectTask(device).execute();
           }
       });
 
@@ -122,5 +105,52 @@ public class StartActivity extends PokerActivity {
     }
     return super.onOptionsItemSelected(item);
   }
+
+    public class BluetoothClientConnectTask extends AsyncTask<Void, Void, BluetoothSocket> {
+        private final BluetoothSocket mmSocket;
+        private final BluetoothDevice mmDevice;
+        private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+
+        public BluetoothClientConnectTask(BluetoothDevice device) {
+            // Use a temporary object that is later assigned to mmSocket,
+            // because mmSocket is final
+            BluetoothSocket tmp = null;
+            mmDevice = device;
+
+            // Get a BluetoothSocket to connect with the given BluetoothDevice
+            try {
+                // MY_UUID is the app's UUID string, also used by the server code
+                tmp = device.createRfcommSocketToServiceRecord(PokerService.uuid);
+            } catch (IOException e) { }
+            mmSocket = tmp;
+        }
+
+        @Override
+        protected BluetoothSocket doInBackground(Void... params) {
+            // Cancel discovery because it will slow down the connection
+            mBluetoothAdapter.cancelDiscovery();
+
+            try {
+                // Connect the device through the socket. This will block
+                // until it succeeds or throws an exception
+                mmSocket.connect();
+            } catch (IOException connectException) {
+                // Unable to connect; close the socket and get out
+                try {
+                    mmSocket.close();
+                } catch (IOException closeException) { }
+                return null;
+            }
+            return mmSocket;
+        }
+
+        @Override
+        protected void onPostExecute(BluetoothSocket bluetoothSocket) {
+            if (mmSocket != null) {
+                Toast.makeText(StartActivity.this, "have socket!", Toast.LENGTH_SHORT);
+            }
+        }
+    }
 
 }

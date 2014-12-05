@@ -1,8 +1,7 @@
 package com.bootcamp.androidpoker.app;
 
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
-import android.net.wifi.p2p.WifiP2pDevice;
-import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,12 +16,11 @@ import java.util.List;
  */
 public class PeerListAdapter extends BaseAdapter {
 
-  private List<WifiP2pDevice> deviceList;
+  private List<BluetoothDevice> deviceList = new ArrayList<BluetoothDevice>();
   private final LayoutInflater layoutInflater;
 
-  public PeerListAdapter(Context context, List<WifiP2pDevice> devices) {
+  public PeerListAdapter(Context context) {
     this.layoutInflater = LayoutInflater.from(context);
-    this.deviceList = devices;
   }
 
   @Override
@@ -47,4 +45,9 @@ public class PeerListAdapter extends BaseAdapter {
     textView.setText(deviceList.get(i).toString());
     return textView;
   }
+
+    public void addDevice(BluetoothDevice device) {
+        deviceList.add(device);
+        notifyDataSetChanged();
+    }
 }
