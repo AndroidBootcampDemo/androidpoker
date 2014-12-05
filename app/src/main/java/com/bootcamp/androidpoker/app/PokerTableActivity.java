@@ -63,27 +63,22 @@ public class PokerTableActivity extends PokerActivity implements PokerService.Me
     @Override
     public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
         super.onCreate(savedInstanceState, persistentState);
-        doBindService();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        doUnbindService();
     }
 
     /* register the broadcast receiver with the intent values to be matched */
   @Override
   protected void onResume() {
     super.onResume();
-    //mBoundService.registerMessageListener(this);
-    //mBoundService.startReceivingMessages();
+    doBindService();
+    mBoundService.registerMessageListener(this);
+    mBoundService.startReceivingMessages();
   }
   /* unregister the broadcast receiver */
   @Override
   protected void onPause() {
     super.onPause();
-    //mBoundService.stopReceivingMessage();
+    mBoundService.stopReceivingMessage();
+    doUnbindService();
   }
 
     @Override

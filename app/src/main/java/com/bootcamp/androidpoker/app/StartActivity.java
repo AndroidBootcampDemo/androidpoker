@@ -78,11 +78,22 @@ public class StartActivity extends PokerActivity {
               if (i >= adapterView.getCount()) {
                   return;
               }
-              String deviceAddress = ((WifiP2pDevice) adapter.getItem(i)).deviceAddress;
+              final String deviceAddress = ((WifiP2pDevice) adapter.getItem(i)).deviceAddress;
               Intent intent = new Intent(StartActivity.this, PokerHandActivity.class);
               intent.putExtra(SERVER_ADDRESS_EXTRA, deviceAddress);
               startActivity(intent);
-              mBoundService.connectToPlayer(deviceAddress);
+              mBoundService.connectToPlayer(deviceAddress, new WifiP2pManager.ActionListener() {
+                  @Override
+                  public void onSuccess() {
+                      Toast.makeText(StartActivity.this, "Connected to peer", Toast.LENGTH_SHORT).show();
+                      mBoundService.sendMessage("hello androidpoker", deviceAddress, 8888);
+                  }
+
+                  @Override
+                  public void onFailure(int reason) {
+                      Toast.makeText(StartActivity.this, "Connection to peer failed", Toast.LENGTH_SHORT).show();
+                  }
+              });
           }
       });
 

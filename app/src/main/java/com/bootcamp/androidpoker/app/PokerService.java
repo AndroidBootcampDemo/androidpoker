@@ -79,22 +79,11 @@ public class PokerService extends Service {
         findAGameServer();
     }
 
-    public void connectToPlayer(String deviceAddress) {
+    public void connectToPlayer(String deviceAddress, WifiP2pManager.ActionListener listener) {
         Toast.makeText(PokerService.this, "Connecting to " + deviceAddress + "...", Toast.LENGTH_SHORT).show();
         WifiP2pConfig config = new WifiP2pConfig();
         config.deviceAddress = deviceAddress;
-        p2pManager.connect(p2pChannel, config, new WifiP2pManager.ActionListener() {
-
-            @Override
-            public void onSuccess() {
-                Toast.makeText(PokerService.this, "Connected to peer", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onFailure(int reason) {
-                Toast.makeText(PokerService.this, "Connection to peer failed", Toast.LENGTH_SHORT).show();
-            }
-        });
+        p2pManager.connect(p2pChannel, config, listener);
     }
 
     private void findAGameServer() {
@@ -118,51 +107,57 @@ public class PokerService extends Service {
         });
     }
 
-    public void sendMessage(String message, String host, int port) {
-        Context context = this.getApplicationContext();
-        int len;
-        Socket socket = new Socket();
-        byte buf[]  = new byte[1024];
-        try {
-            /**
-             * Create a client socket with the host,
-             * port, and timeout information.
-             */
-            socket.bind(null);
-            socket.connect((new InetSocketAddress(host, port)), 500);
+    public void sendMessage(final String message, final String host, final int port) {
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                Context context = getApplicationContext();
+                int len;
+                Socket socket = new Socket();
+                byte buf[]  = new byte[1024];
+                try {
+                    /**
+                     * Create a client socket with the host,
+                     * port, and timeout information.
+                     */
+                    socket.bind(null);
+                    socket.connect((new InetSocketAddress(host, port)), 500);
 
-            /**
-             * Create a byte stream from a JPEG file and pipe it to the output stream
-             * of the socket. This data will be retrieved by the server device.
-             */
-            OutputStream outputStream = socket.getOutputStream();
-            ContentResolver cr = context.getContentResolver();
-            InputStream inputStream = new ByteArrayInputStream(
-                    message.getBytes(StandardCharsets.UTF_8));
-            while ((len = inputStream.read(buf)) != -1) {
-                outputStream.write(buf, 0, len);
-            }
-            outputStream.close();
-            inputStream.close();
-        } catch (IOException e) {
-            //catch logic
-        }
+                    /**
+                     * Create a byte stream from a JPEG file and pipe it to the output stream
+                     * of the socket. This data will be retrieved by the server device.
+                     */
+                    OutputStream outputStream = socket.getOutputStream();
+                    ContentResolver cr = context.getContentResolver();
+                    InputStream inputStream = new ByteArrayInputStream(
+                            message.getBytes(StandardCharsets.UTF_8));
+                    while ((len = inputStream.read(buf)) != -1) {
+                        outputStream.write(buf, 0, len);
+                    }
+                    outputStream.close();
+                    inputStream.close();
+                } catch (IOException e) {
+                    //catch logic
+                }
 
-        /**
-         * Clean up any open sockets when done
-         * transferring or if an exception occurred.
-         */
-        finally {
-            if (socket != null) {
-                if (socket.isConnected()) {
-                    try {
-                        socket.close();
-                    } catch (IOException e) {
-                        //catch logic
+                /**
+                 * Clean up any open sockets when done
+                 * transferring or if an exception occurred.
+                 */
+                finally {
+                    if (socket != null) {
+                        if (socket.isConnected()) {
+                            try {
+                                socket.close();
+                            } catch (IOException e) {
+                                //catch logic
+                            }
+                        }
                     }
                 }
+                return null;
             }
-        }
+        }.execute();
     }
 
     public void startReceivingMessages() {
