@@ -62,7 +62,7 @@ public class Table {
     private final TableType tableType;
     
     /** The size of the big blind. */
-    private final int bigBlind;
+    private int bigBlind;
     
     /** The players at the table. */
     private final List<Player> players;
@@ -105,6 +105,8 @@ public class Table {
     
     /** TableObserver is notified of updates to this table */
     private TableObserver tableObserver;
+
+    private static int round = 0;
     
     /**
      * Constructor.
@@ -171,6 +173,10 @@ public class Table {
      */
     private void playHand() {
         resetHand();
+        round++;
+        if (round % 10 == 0) {
+            bigBlind += 5;
+        }
         
         // Small blind.
         if (activePlayers.size() > 2) {
