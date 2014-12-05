@@ -95,18 +95,4 @@ public interface TableObserver {
      */
     void playerActed(Player player);
 
-    /**
-     * Requests this player to act, selecting one of the allowed actions.
-     * 
-     * @param minBet
-     *            The minimum bet.
-     * @param currentBet
-     *            The current bet.
-     * @param allowedActions
-     *            The allowed actions.
-     * 
-     * @return The selected action.
-     */
-    Action act(int minBet, int currentBet, Set<Action> allowedActions);
-
 }

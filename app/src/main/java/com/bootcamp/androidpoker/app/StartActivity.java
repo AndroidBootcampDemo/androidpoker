@@ -34,8 +34,6 @@ public class StartActivity extends Activity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_start);
 
-    Table table;
-
     Button createGameButton = (Button) findViewById(R.id.button_create_game);
     createGameButton.setOnClickListener(new OnClickListener() {
       @Override

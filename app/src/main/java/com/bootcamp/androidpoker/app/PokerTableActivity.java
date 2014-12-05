@@ -2,30 +2,46 @@ package com.bootcamp.androidpoker.app;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Activity that runs on the tablet and shows the poker table.
  */
 public class PokerTableActivity extends Activity {
 
-  class User {
+    private static final TableType TABLE_TYPE = TableType.NO_LIMIT;
+    /** The size of the big blind. */
+    private static final int BIG_BLIND = 10;
+    /** The starting cash per player. */
+    private static final int STARTING_CASH = 500;
+
+    class User {
 
   }
+
   private static final int UNKNOWN_WIFI_STATE = -1;
   WifiP2pManager p2pManager;
   Channel p2pChannel;
@@ -33,6 +49,8 @@ public class PokerTableActivity extends Activity {
   IntentFilter intentFilter;
   // maybe User object instead of string
   List<User> usersConnected = new ArrayList<User>();
+
+  Handler mainHandler;
 
   public void setUsersConnected(List<User> users) {
     usersConnected.clear();
@@ -49,7 +67,58 @@ public class PokerTableActivity extends Activity {
     setContentView(R.layout.activity_poker_table);
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+    mainHandler = new Handler(getMainLooper());
+
     createWifiGroup();
+
+
+      runGame();
+  }
+
+  public void displayPlayersInfo(final Map<String, Player> players) {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    displayPlayersInfo(players);
+                }
+            });
+            return;
+        }
+        FragmentManager manager = getFragmentManager();
+        PlayerListFragment fragment = (PlayerListFragment) manager.findFragmentById(R.id.players);
+        PlayerListAdapter playersAdapter = new PlayerListAdapter(PokerTableActivity.this, players);
+        fragment.getListView().setAdapter(playersAdapter);
+  }
+
+  private void runGame() {
+      new AsyncTask<Void, Void, Void>() {
+
+          protected Void doInBackground(Void... args) {
+              /** The players at the table. */
+              Map<String, Player> players = new HashMap<String, Player>();
+              players.put("Player", new Player("Henry",   STARTING_CASH, new BasicBot(0, 75)));
+              players.put("Joe",    new Player("Joe",   STARTING_CASH, new BasicBot(0, 75)));
+              players.put("Mike",   new Player("Mike",  STARTING_CASH, new BasicBot(25, 50)));
+              players.put("Eddie",  new Player("Eddie", STARTING_CASH, new BasicBot(50, 25)));
+              UITableObserver tableObserver = new UITableObserver(PokerTableActivity.this);
+              displayPlayersInfo(players);
+              Table table = new Table(TABLE_TYPE, tableObserver, BIG_BLIND);
+              for (Player player : players.values()) {
+                  table.addPlayer(player);
+              }
+              table.run();
+              return null;
+          }
+
+          protected void onProgressUpdate(Void... progress) {
+              // Do nothing.
+          }
+
+          protected void onPostExecute(Void result) {
+              // Do nothing.
+          }
+      }.execute();
   }
 
   /* register the broadcast receiver with the intent values to be matched */
@@ -65,6 +134,10 @@ public class PokerTableActivity extends Activity {
     unregisterReceiver(p2pReceiver);
   }
 
+  @Override
+  public void onAttachFragment(Fragment fragment) {
+  }
+
   private void createWifiGroup() {
     intentFilter = new IntentFilter();
     intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
@@ -76,6 +149,65 @@ public class PokerTableActivity extends Activity {
     p2pChannel = p2pManager.initialize(this, getMainLooper(), null);
     p2pReceiver = new WiFiDirectBroadcastReceiver(p2pManager, p2pChannel);
   }
+
+    public class UITableObserver implements TableObserver {
+        private final String TAG = UITableObserver.class.getSimpleName();
+
+        public UITableObserver(Context context) {
+
+        }
+
+        public void messageReceived(String message) {
+        }
+
+        public void joinedTable(TableType type, int bigBlind, List<Player> players) {
+            Log.d(TAG, "joinedTable");
+        }
+
+        public void handStarted(Player dealer) {
+            Log.d(TAG, "handStarted");
+
+        }
+
+        public void actorRotated(Player actor) {
+            Log.d(TAG, "actorRotated");
+
+        }
+
+        public void playerUpdated(final Player player) {
+            if (Looper.myLooper() != Looper.getMainLooper()) {
+                Log.d(TAG, "playerUpdated posting to UI");
+                mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        playerUpdated(player);
+                    }
+                });
+                return;
+            }
+            Log.d(TAG, "playerUpdated");
+        }
+
+        public void boardUpdated(final List<Card> cards, final int bet, final int pot) {
+            if (Looper.myLooper() != Looper.getMainLooper()) {
+                mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        boardUpdated(cards, bet, pot);
+                    }
+                });
+                return;
+            }
+            Log.d(TAG, "boardUpdated");
+
+        }
+
+        public void playerActed(Player player) {
+            Log.d(TAG, "playerActed");
+        }
+
+
+    }
 
   /**
    * A BroadcastReceiver that notifies of important Wi-Fi p2p events.
@@ -152,13 +284,19 @@ public class PokerTableActivity extends Activity {
   }
 
   public static class PlayerListFragment extends Fragment {
+    ListView playerList;
     @Override
     public View onCreateView(
         LayoutInflater inflater,
         ViewGroup container,
         Bundle savedInstanceState) {
       // Inflate the layout for this fragment
-      return inflater.inflate(R.layout.fragment_player_list, container, false);
+      playerList = (ListView) inflater.inflate(R.layout.fragment_player_list, container, false);
+      return playerList;
+    }
+
+    public ListView getListView() {
+        return playerList;
     }
   }
 }
