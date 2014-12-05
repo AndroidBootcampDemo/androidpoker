@@ -56,7 +56,7 @@ public class PlayerListAdapter extends BaseAdapter {
         List<Player> playerList = new ArrayList<Player>(players.values());
         Action action = playerList.get(i).getAction();
 
-        if ( playerList.get(i).equals(currentPlayer)) {
+        if (playerList.get(i).getName().equals(currentPlayer)) {
             textView.setTextColor(Color.RED);
         } else {
             textView.setTextColor(Color.BLACK);

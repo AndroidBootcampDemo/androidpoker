@@ -114,6 +114,7 @@ public class PokerTableActivity extends PokerActivity {
               BluetoothSocket socket = null;
               // Keep listening until exception occurs or a socket is returned
               Map<String, Player> players = new HashMap<String, Player>();
+
               while (players.size() < 4) {
                   try {
                       socket = mmServerSocket.accept();
@@ -128,7 +129,9 @@ public class PokerTableActivity extends PokerActivity {
                   }
               }
 
+              // Comment out
 //              players.put("Eddie",  new Player("Eddie", STARTING_CASH, new BasicBot(50, 25)));
+
               UITableObserver tableObserver = new UITableObserver(PokerTableActivity.this);
               displayPlayersInfo(players);
 
