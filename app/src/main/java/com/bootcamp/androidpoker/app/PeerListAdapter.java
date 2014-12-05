@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+import android.widget.TwoLineListItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,14 +41,20 @@ public class PeerListAdapter extends BaseAdapter {
 
   @Override
   public View getView(int i, View view, ViewGroup parent) {
-    TextView textView = (TextView) layoutInflater.inflate(
-        R.layout.peer_list_item, parent, false /* attachToRoot */);
-    textView.setText(deviceList.get(i).toString());
-    return textView;
+    TwoLineListItem listItemView = (TwoLineListItem) layoutInflater.inflate(
+        android.R.layout.simple_list_item_2, parent, false /* attachToRoot */);
+    ((TextView) listItemView.findViewById(android.R.id.text1)).setText(deviceList.get(i).getName());
+    ((TextView) listItemView.findViewById(android.R.id.text2)).setText(deviceList.get(i).toString());
+    return listItemView;
   }
 
     public void addDevice(BluetoothDevice device) {
         deviceList.add(device);
+        notifyDataSetChanged();
+    }
+
+    public void reset() {
+        deviceList.clear();
         notifyDataSetChanged();
     }
 }
