@@ -33,7 +33,7 @@ import java.util.Map;
 /**
  * Activity that runs on the tablet and shows the poker table.
  */
-public class PokerTableActivity extends PokerActivity implements PokerService.MessageListener {
+public class PokerTableActivity extends PokerActivity {
 
     private static final boolean PLAYING_WITH_BOTS = true;
     private static final TableType TABLE_TYPE = TableType.NO_LIMIT;
@@ -172,12 +172,6 @@ public class PokerTableActivity extends PokerActivity implements PokerService.Me
     super.onPause();
     doUnbindService();
   }
-
-    @Override
-    public void onMessageReceived(String message) {
-        Toast.makeText(this, "Received message: " + message, Toast.LENGTH_LONG);
-
-    }
 
   /**
    * A BroadcastReceiver that notifies of important Wi-Fi p2p events.
