@@ -79,9 +79,9 @@ public class StartActivity extends PokerActivity {
                   return;
               }
               final String deviceAddress = ((WifiP2pDevice) adapter.getItem(i)).deviceAddress;
-              Intent intent = new Intent(StartActivity.this, PokerHandActivity.class);
-              intent.putExtra(SERVER_ADDRESS_EXTRA, deviceAddress);
-              startActivity(intent);
+//              Intent intent = new Intent(StartActivity.this, PokerHandActivity.class);
+//              intent.putExtra(SERVER_ADDRESS_EXTRA, deviceAddress);
+//              startActivity(intent);
               mBoundService.connectToPlayer(deviceAddress, new WifiP2pManager.ActionListener() {
                   @Override
                   public void onSuccess() {

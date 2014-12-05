@@ -137,7 +137,7 @@ public class PokerService extends Service {
                     outputStream.close();
                     inputStream.close();
                 } catch (IOException e) {
-                    //catch logic
+                    Log.e(TAG, "could not send message " + e.getMessage(), e);
                 }
 
                 /**
