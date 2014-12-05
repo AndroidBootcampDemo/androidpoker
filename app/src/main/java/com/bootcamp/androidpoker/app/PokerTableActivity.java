@@ -50,7 +50,8 @@ public class PokerTableActivity extends PokerActivity implements PokerService.Me
   // maybe User object instead of string
   List<User> usersConnected = new ArrayList<User>();
 
-  Handler mainHandler;
+    PlayerListAdapter playersAdapter;
+    Handler mainHandler;
 
   public void setUsersConnected(List<User> users) {
     usersConnected.clear();
@@ -83,7 +84,7 @@ public class PokerTableActivity extends PokerActivity implements PokerService.Me
         }
         FragmentManager manager = getFragmentManager();
         PlayerListFragment fragment = (PlayerListFragment) manager.findFragmentById(R.id.players);
-        PlayerListAdapter playersAdapter = new PlayerListAdapter(PokerTableActivity.this, players);
+        playersAdapter = new PlayerListAdapter(PokerTableActivity.this, players);
         fragment.getListView().setAdapter(playersAdapter);
   }
 
@@ -94,7 +95,7 @@ public class PokerTableActivity extends PokerActivity implements PokerService.Me
           protected Void doInBackground(Void... args) {
               /** The players at the table. */
               Map<String, Player> players = new HashMap<String, Player>();
-              players.put("Player", new Player("Henry",   STARTING_CASH, new BasicBot(0, 75)));
+              players.put("Henry", new Player("Henry",   STARTING_CASH, new BasicBot(0, 75)));
               players.put("Joe",    new Player("Joe",   STARTING_CASH, new BasicBot(0, 75)));
               players.put("Mike",   new Player("Mike",  STARTING_CASH, new BasicBot(25, 50)));
               players.put("Eddie",  new Player("Eddie", STARTING_CASH, new BasicBot(50, 25)));
@@ -270,16 +271,18 @@ public class PokerTableActivity extends PokerActivity implements PokerService.Me
         }
 
         public void playerUpdated(final Player player) {
+            slowDownBots();
+
             mainHandler.post(new Runnable() {
                 @Override
                 public void run() {
+                    playersAdapter.updatePlayer(player);
                     Log.d(TAG, "playerUpdated");
                 }
             });
         }
 
         public void boardUpdated(final List<Card> cards, final int bet, final int pot) {
-            // Remove this!!
             slowDownBots();
 
             final List<Card> immutableCards = new ArrayList<Card>(cards);

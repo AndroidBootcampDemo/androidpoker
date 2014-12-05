@@ -10,6 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,12 +19,14 @@ import java.util.Map;
  */
 public class PlayerListAdapter extends BaseAdapter {
 
+    private static String SPACE = "    ";
+
     LayoutInflater layoutInflater;
-    List<Player> players;
+    Map<String, Player> players;
 
     public PlayerListAdapter(Context context, Map<String, Player> players) {
         this.layoutInflater = LayoutInflater.from(context);
-        this.players = new ArrayList<Player>(players.values());
+        this.players = new LinkedHashMap<String, Player>(players);
     }
 
     @Override
@@ -45,7 +48,18 @@ public class PlayerListAdapter extends BaseAdapter {
     public View getView(int i, View view, ViewGroup parent) {
         TextView textView = (TextView) layoutInflater.inflate(
                 R.layout.peer_list_item, parent, false /* attachToRoot */);
-        textView.setText(players.get(i).getName());
+
+        List<Player> playerList = new ArrayList<Player>(players.values());
+        Action action = playerList.get(i).getAction();
+        textView.setText(playerList.get(i).getName() + SPACE
+                + "cash:$" + playerList.get(i).getCash() + SPACE
+                + "action:" + (action == null ? "None" : action) + SPACE
+                + "bet:$" + playerList.get(i).getBet());
         return textView;
+    }
+
+    public void updatePlayer(Player player) {
+        players.put(player.getName(), player);
+        notifyDataSetChanged();
     }
 }
