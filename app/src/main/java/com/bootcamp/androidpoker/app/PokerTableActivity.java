@@ -297,7 +297,7 @@ public class PokerTableActivity extends PokerActivity {
                             imageView = (ImageView) findViewById(R.id.fourth_card);
                         else if (i == 4)
                             imageView = (ImageView) findViewById(R.id.fifth_card);
-                        int id = getResources().getIdentifier("backcard", "drawable", getPackageName());
+                        int id = getResources().getIdentifier("card_blue_back", "drawable", getPackageName());
                         imageView.setImageResource(id);
                     }
                 }

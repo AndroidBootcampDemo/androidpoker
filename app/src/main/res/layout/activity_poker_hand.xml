@@ -26,7 +26,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="$152"
+                android:text="$0"
                 android:id="@+id/cash_value"
                 android:layout_column="10"
                 android:layout_weight="1"

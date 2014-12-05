@@ -10,7 +10,7 @@
 
     <ImageView
             android:id="@+id/first_card"
-            android:src="@drawable/backcard"
+            android:src="@drawable/card_blue_back"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:layout_weight="1"
@@ -20,7 +20,7 @@
 
     <ImageView
             android:id="@+id/second_card"
-            android:src="@drawable/backcard"
+            android:src="@drawable/card_blue_back"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:layout_alignLeft="@id/first_card"
@@ -30,7 +30,7 @@
 
     <ImageView
             android:id="@+id/third_card"
-            android:src="@drawable/backcard"
+            android:src="@drawable/card_blue_back"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:layout_alignLeft="@id/second_card"
@@ -40,7 +40,7 @@
 
     <ImageView
             android:id="@+id/fourth_card"
-            android:src="@drawable/backcard"
+            android:src="@drawable/card_blue_back"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:layout_alignLeft="@id/third_card"
@@ -50,7 +50,7 @@
 
     <ImageView
             android:id="@+id/fifth_card"
-            android:src="@drawable/backcard"
+            android:src="@drawable/card_blue_back"
             android:layout_width="@dimen/card_width"
             android:layout_height="@dimen/card_height"
             android:layout_alignLeft="@id/fourth_card"
