@@ -53,6 +53,7 @@ public class RaiseSliderFragment extends DialogFragment {
                 raiseButton.setEnabled(false);
                 foldButton.setEnabled(false);
                 dismiss();
+                activity.communicator.listenForInput();
             }
         });
 

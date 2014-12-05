@@ -27,7 +27,7 @@ public class PokerHandActivity extends PokerActivity {
         String serverAddress = getIntent().getStringExtra(StartActivity.SERVER_ADDRESS_EXTRA);
         Toast.makeText(this, "game with server " + serverAddress, Toast.LENGTH_SHORT).show();
 
-        communicator = new ClientCommunicator() {
+        communicator = new ClientCommunicator(null) {
             @Override
             void onShowCards(String first, String second) {
                 ImageView handFirst = (ImageView) findViewById(R.id.hand_first);
@@ -37,6 +37,7 @@ public class PokerHandActivity extends PokerActivity {
                 ImageView handSecond = (ImageView) findViewById(R.id.hand_second);
                 int secondId = getResources().getIdentifier("card_" + second, "drawable", getPackageName());
                 handSecond.setImageResource(secondId);
+                communicator.listenForInput();
             }
 
             @Override
@@ -46,6 +47,7 @@ public class PokerHandActivity extends PokerActivity {
 
                 ImageView handSecond = (ImageView) findViewById(R.id.hand_second);
                 handSecond.setImageResource(R.drawable.card_blue_back);
+                communicator.listenForInput();
             }
 
             @Override
@@ -53,6 +55,7 @@ public class PokerHandActivity extends PokerActivity {
                 currentCash = cash;
                 TextView cashValue = (TextView) findViewById(R.id.cash_value);
                 cashValue.setText("$" + currentCash);
+                communicator.listenForInput();
             }
 
             @Override
@@ -103,6 +106,8 @@ public class PokerHandActivity extends PokerActivity {
                 callButton.setEnabled(false);
                 raiseButton.setEnabled(false);
                 foldButton.setEnabled(false);
+
+                communicator.listenForInput();
             }
         });
 
@@ -120,6 +125,7 @@ public class PokerHandActivity extends PokerActivity {
                 callButton.setEnabled(false);
                 raiseButton.setEnabled(false);
                 foldButton.setEnabled(false);
+                communicator.listenForInput();
             }
         });
     }

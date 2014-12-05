@@ -1,9 +1,13 @@
 package com.bootcamp.androidpoker.app;
 
+import android.bluetooth.BluetoothSocket;
+import android.os.AsyncTask;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +15,13 @@ import java.util.List;
  * Created by freopen on 12/4/14.
  */
 public abstract class ClientCommunicator {
+
+    private final BluetoothSocket socket;
+
+    public ClientCommunicator(BluetoothSocket socket) {
+        this.socket = socket;
+    }
+
     public void call() {
         JSONObject message = new JSONObject();
         try {
@@ -80,4 +91,27 @@ public abstract class ClientCommunicator {
     abstract void onEnableActions(List<String> actions);
 
     abstract void OnUpdateBetInfo(int minBet, int currentBet);
+
+    public void listenForInput() {
+        new AsyncTask<Void, Void, JSONObject>() {
+            @Override
+            protected JSONObject doInBackground(Void... voids) {
+                JSONObject message = null;
+                try {
+                    message = NetworkPlayer.receiveJSON(socket);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return message;
+            }
+
+            @Override
+            protected void onPostExecute(JSONObject message) {
+                parseJSON(message);
+            }
+        }.execute();
+
+    }
 }
