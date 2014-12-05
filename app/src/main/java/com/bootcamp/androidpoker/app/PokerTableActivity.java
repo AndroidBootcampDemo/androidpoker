@@ -114,7 +114,7 @@ public class PokerTableActivity extends PokerActivity {
               BluetoothSocket socket = null;
               // Keep listening until exception occurs or a socket is returned
               Map<String, Player> players = new HashMap<String, Player>();
-              while (players.size() < 1) {
+              while (players.size() < 4) {
                   try {
                       socket = mmServerSocket.accept();
                   } catch (IOException e) {
@@ -123,12 +123,12 @@ public class PokerTableActivity extends PokerActivity {
                   // If a connection was accepted
                   if (socket != null) {
                       // Do work to manage the connection (in a separate thread)
-                      players.put("Henry", new Player("Henry",   STARTING_CASH, new NetworkPlayer(socket)));
+                      players.put("Henry " + players.size(), new Player("Henry " + players.size(),  STARTING_CASH, new NetworkPlayer(socket)));
 
                   }
               }
 
-              players.put("Eddie",  new Player("Eddie", STARTING_CASH, new BasicBot(50, 25)));
+//              players.put("Eddie",  new Player("Eddie", STARTING_CASH, new BasicBot(50, 25)));
               UITableObserver tableObserver = new UITableObserver(PokerTableActivity.this);
               displayPlayersInfo(players);
 
@@ -230,9 +230,16 @@ public class PokerTableActivity extends PokerActivity {
 
         }
 
-        public void actorRotated(Player actor) {
+        public void actorRotated(final Player actor) {
             Log.d(TAG, "actorRotated");
 
+            slowDownBots();
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    playersAdapter.rotatePlayer(actor);
+                }
+            });
         }
 
         public void playerUpdated(final Player player) {

@@ -1,6 +1,7 @@
 package com.bootcamp.androidpoker.app;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.view.LayoutInflater;
@@ -23,6 +24,7 @@ public class PlayerListAdapter extends BaseAdapter {
 
     LayoutInflater layoutInflater;
     Map<String, Player> players;
+    String currentPlayer;
 
     public PlayerListAdapter(Context context, Map<String, Player> players) {
         this.layoutInflater = LayoutInflater.from(context);
@@ -53,6 +55,12 @@ public class PlayerListAdapter extends BaseAdapter {
 
         List<Player> playerList = new ArrayList<Player>(players.values());
         Action action = playerList.get(i).getAction();
+
+        if ( playerList.get(i).equals(currentPlayer)) {
+            textView.setTextColor(Color.RED);
+        } else {
+            textView.setTextColor(Color.BLACK);
+        }
         textView.setText(playerList.get(i).getName() + SPACE
                 + "cash:$" + playerList.get(i).getCash() + SPACE
                 + "action:" + (action == null ? "None" : action) + SPACE
@@ -62,6 +70,11 @@ public class PlayerListAdapter extends BaseAdapter {
 
     public void updatePlayer(Player player) {
         players.put(player.getName(), player);
+        notifyDataSetChanged();
+    }
+
+    public void rotatePlayer(Player player) {
+        currentPlayer = player.getName();
         notifyDataSetChanged();
     }
 }
