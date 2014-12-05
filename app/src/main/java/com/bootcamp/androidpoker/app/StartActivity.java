@@ -25,8 +25,6 @@ import java.io.IOException;
  */
 public class StartActivity extends PokerActivity {
 
-    public static final String SERVER_ADDRESS_EXTRA = "server-address";
-
   private ListView peerListView;
     private PeerListAdapter adapter;
 

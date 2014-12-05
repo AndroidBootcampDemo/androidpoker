@@ -24,10 +24,16 @@ public class PokerHandActivity extends PokerActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_poker_hand);
 
-        String serverAddress = getIntent().getStringExtra(StartActivity.SERVER_ADDRESS_EXTRA);
-        Toast.makeText(this, "game with server " + serverAddress, Toast.LENGTH_SHORT).show();
+        doBindService(new BindingCallback() {
+            @Override
+            public void onBoundToService() {
+                onBound();
+            }
+        });
+    }
 
-        communicator = new ClientCommunicator(null) {
+    void onBound() {
+        communicator = new ClientCommunicator(mBoundService.clientSocket) {
             @Override
             void onShowCards(String first, String second) {
                 ImageView handFirst = (ImageView) findViewById(R.id.hand_first);
