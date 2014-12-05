@@ -11,17 +11,25 @@
     android:orientation="vertical"
     tools:context="com.bootcamp.androidpoker.app.StartActivity">
 
-    <Button
-        android:id="@+id/button_create_game"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/create_game"/>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
 
-    <Button
-            android:id="@+id/button_join_game"
+        <Button
+            android:id="@+id/button_create_game"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/join_game"/>
+            android:text="@string/create_game"
+            android:layout_weight="1" />
+
+        <Button
+                android:id="@+id/button_join_game"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/join_game"
+            android:layout_weight="1" />
+    </LinearLayout>
 
     <ListView
             android:id="@+id/peer_list"
