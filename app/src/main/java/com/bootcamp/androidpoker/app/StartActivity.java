@@ -148,7 +148,10 @@ public class StartActivity extends PokerActivity {
         @Override
         protected void onPostExecute(BluetoothSocket bluetoothSocket) {
             if (mmSocket != null) {
-                Toast.makeText(StartActivity.this, "have socket!", Toast.LENGTH_SHORT);
+                Toast.makeText(StartActivity.this, "have socket!", Toast.LENGTH_SHORT).show();
+                mBoundService.clientSocket = mmSocket;
+                Intent intent = new Intent(StartActivity.this, PokerHandActivity.class);
+                startActivity(intent);
             }
         }
     }

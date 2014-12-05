@@ -1,6 +1,7 @@
 package com.bootcamp.androidpoker.app;
 
 import android.app.Service;
+import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
@@ -12,6 +13,8 @@ import java.util.UUID;
 public class PokerService extends Service {
 
     final public static UUID uuid = new UUID(5465465, 465496846);
+
+    public BluetoothSocket clientSocket;
 
     public static String TAG = "PokerService";
 
