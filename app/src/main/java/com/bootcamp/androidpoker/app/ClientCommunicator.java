@@ -53,7 +53,7 @@ public abstract class ClientCommunicator {
     private void parseJSON(JSONObject message) {
         try {
             final int type = message.getInt("message_type");
-            final JSONObject args = message.getJSONObject("args")
+            final JSONObject args = message.getJSONObject("args");
             if (type == 0) {
                 onChangeCash(args.getInt("cash"));
             } else if (type == 1) {
