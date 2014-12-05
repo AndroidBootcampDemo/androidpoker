@@ -48,6 +48,8 @@ public class PlayerListAdapter extends BaseAdapter {
     public View getView(int i, View view, ViewGroup parent) {
         TextView textView = (TextView) layoutInflater.inflate(
                 R.layout.peer_list_item, parent, false /* attachToRoot */);
+        textView.setTextSize(35);
+        textView.setPadding(20, 0, 0, 0);
 
         List<Player> playerList = new ArrayList<Player>(players.values());
         Action action = playerList.get(i).getAction();
