@@ -36,6 +36,7 @@ import java.util.Set;
  */
 public class PokerTableActivity extends PokerActivity implements PokerService.MessageListener {
 
+    private static final boolean PLAYING_WITH_BOTS = true;
     private static final TableType TABLE_TYPE = TableType.NO_LIMIT;
     /** The size of the big blind. */
     private static final int BIG_BLIND = 10;
@@ -67,14 +68,6 @@ public class PokerTableActivity extends PokerActivity implements PokerService.Me
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
     mainHandler = new Handler(getMainLooper());
-
-//    ActivityTableObserver tableObserver = new ActivityTableObserver();
-//    List<Card> cards = new ArrayList<Card>();
-//    cards.add(new Card(1, 1));
-//    cards.add(new Card(2, 2));
-//    cards.add(new Card(3, 3));
-//    tableObserver.boardUpdated(cards, 10, 50);
-
     runGame();
   }
 
@@ -108,13 +101,6 @@ public class PokerTableActivity extends PokerActivity implements PokerService.Me
               UITableObserver tableObserver = new UITableObserver(PokerTableActivity.this);
               displayPlayersInfo(players);
 
-
-              List<Card> cards = new ArrayList<Card>();
-              cards.add(new Card(1, 1));
-              cards.add(new Card(2, 2));
-              cards.add(new Card(3, 3));
-              tableObserver.boardUpdated(cards, 10, 50);
-
               Table table = new Table(TABLE_TYPE, tableObserver, BIG_BLIND);
               for (Player player : players.values()) {
                   table.addPlayer(player);
@@ -132,15 +118,6 @@ public class PokerTableActivity extends PokerActivity implements PokerService.Me
           }
       }.execute();
     }
-
-  /** Remove this once the engine is hooked up
-  public void hackTemporaryInitialization(TableObserver tableObserver) {
-      List<Card> cards = new ArrayList<Card>();
-      cards.add(new Card(1, 1));
-      cards.add(new Card(2, 2));
-      cards.add(new Card(3, 3));
-      tableObserver.boardUpdated(cards, 10, 50)
-  }
 
     /* register the broadcast receiver with the intent values to be matched */
   @Override
@@ -302,14 +279,19 @@ public class PokerTableActivity extends PokerActivity implements PokerService.Me
         }
 
         public void boardUpdated(final List<Card> cards, final int bet, final int pot) {
+            // Remove this!!
+            slowDownBots();
+
             final List<Card> immutableCards = new ArrayList<Card>(cards);
             mainHandler.post(new Runnable() {
                 @Override
                 public void run() {
                     Log.d(TAG, "boardUpdated");
+
                     ((TextView)findViewById(R.id.bet)).setText("Bet" + " $" + bet);
                     ((TextView)findViewById(R.id.pot)).setText("Pot" + " $" + pot);
                     int noOfCards = (immutableCards == null) ? 0 : immutableCards.size();
+                    Log.d("igsolla", "boardUpdated noOfCards: " + noOfCards);
                     for (int i = 0; i < noOfCards; i++) {
                         ImageView imageView = null;
                         if (i == 0)
@@ -329,12 +311,38 @@ public class PokerTableActivity extends PokerActivity implements PokerService.Me
                         int id = getResources().getIdentifier(cardName, "drawable", getPackageName());
                         imageView.setImageResource(id);
                     }
+                    for (int i = noOfCards; i < 5; i++) {
+                        ImageView imageView = null;
+                        if (i == 0)
+                            imageView = (ImageView) findViewById(R.id.first_card);
+                        else if (i == 1)
+                            imageView = (ImageView) findViewById(R.id.second_card);
+                        else if (i == 2)
+                            imageView = (ImageView) findViewById(R.id.third_card);
+                        else if (i == 3)
+                            imageView = (ImageView) findViewById(R.id.fourth_card);
+                        else if (i == 4)
+                            imageView = (ImageView) findViewById(R.id.fifth_card);
+                        int id = getResources().getIdentifier("backcard", "drawable", getPackageName());
+                        imageView.setImageResource(id);
+                    }
                 }
             });
         }
 
         public void playerActed(Player player) {
             Log.d(TAG, "playerActed");
+        }
+    }
+
+    public void slowDownBots() {
+        if (!PLAYING_WITH_BOTS) {
+            return;
+        }
+        try {
+            Thread.sleep(50);
+        } catch (Exception e) {
+
         }
     }
 }
