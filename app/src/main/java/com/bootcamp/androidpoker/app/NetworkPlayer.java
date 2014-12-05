@@ -1,9 +1,20 @@
 package com.bootcamp.androidpoker.app;
 
+import android.bluetooth.BluetoothSocket;
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 
@@ -11,6 +22,14 @@ import java.util.Set;
  * Created by freopen on 12/5/14.
  */
 public class NetworkPlayer implements Client {
+
+    public static String TAG = "NetworkPlayer";
+
+    private BluetoothSocket mSocket;
+
+    public  NetworkPlayer(BluetoothSocket socket) {
+        mSocket = socket;
+    }
 
     @Override
     public void handStarted(int cash) {
@@ -47,8 +66,8 @@ public class NetworkPlayer implements Client {
         } catch (JSONException e) {}
         sendJSON(2, args);
 
-        final JSONObject response = receiveJSON();
         try {
+            final JSONObject response = receiveJSON();
             final String action = response.getString("action");
             if (action == "call") {
                 return new CallAction();
@@ -59,7 +78,9 @@ public class NetworkPlayer implements Client {
             } else if (action == "check") {
                 return new CheckAction();
             }
-        } catch (JSONException e) {}
+        } catch (Exception e) {
+            Log.e(TAG, "failed receiving act", e);
+        }
         throw new IllegalStateException();
     }
 
@@ -68,15 +89,40 @@ public class NetworkPlayer implements Client {
         try {
             message.put("message_type", message_type);
             message.put("args", args);
-        } catch (JSONException e) {}
-        sendJSON(message);
+            sendJSON(message);
+        } catch (Exception e) {
+            Log.e(TAG, "failed sending message", e);
+        }
     }
 
-    private void sendJSON(JSONObject message) {
+    private void sendJSON(JSONObject message) throws IOException {
+        String string = message.toString();
+        Log.d(TAG, "sending message: " + string);
 
+        OutputStream out = mSocket.getOutputStream();
+
+        byte buf[]  = new byte[1024];
+        int len;
+
+        InputStream inputStream = new ByteArrayInputStream(
+                string.getBytes(StandardCharsets.UTF_8));
+        while ((len = inputStream.read(buf)) != -1) {
+            out.write(buf, 0, len);
+        }
+        Log.d(TAG, "message sent");
     }
 
-    private JSONObject receiveJSON() {
-        return null;
+    private JSONObject receiveJSON() throws IOException, JSONException {
+        InputStream in = mSocket.getInputStream();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        StringWriter writer = new StringWriter();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            writer.append(line);
+        }
+        reader.close();
+        String message = reader.toString();
+        Log.d(TAG, "received message: " + message);
+        return new JSONObject(message);
     }
 }
