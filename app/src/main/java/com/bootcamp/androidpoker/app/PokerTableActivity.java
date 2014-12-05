@@ -1,35 +1,34 @@
 package com.bootcamp.androidpoker.app;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothServerSocket;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.PersistableBundle;
 import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.ListView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Activity that runs on the tablet and shows the poker table.
@@ -67,12 +66,21 @@ public class PokerTableActivity extends PokerActivity implements PokerService.Me
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_poker_table);
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+      mainHandler = new Handler(getMainLooper());
 
-    mainHandler = new Handler(getMainLooper());
-    runGame();
+      Intent discoverableIntent = new
+              Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+      discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+      startActivityForResult(discoverableIntent, 0);
   }
 
-   public void displayPlayersInfo(final Map<String, Player> players) {
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Toast.makeText(this, "on result", Toast.LENGTH_SHORT).show();
+        runGame();
+    }
+
+    public void displayPlayersInfo(final Map<String, Player> players) {
         if (Looper.myLooper() != Looper.getMainLooper()) {
             mainHandler.post(new Runnable() {
                 @Override
@@ -92,12 +100,37 @@ public class PokerTableActivity extends PokerActivity implements PokerService.Me
   private void runGame() {
       new AsyncTask<Void, Void, Void>() {
 
+          private BluetoothServerSocket mmServerSocket;
+
+          @Override
+          protected void onPreExecute() {
+              try {
+                  // MY_UUID is the app's UUID string, also used by the client code
+                  mmServerSocket = BluetoothAdapter.getDefaultAdapter().listenUsingRfcommWithServiceRecord(
+                          "androidpoker", PokerService.uuid);
+              } catch (IOException e) {
+                  Toast.makeText(PokerTableActivity.this, "socket opening failed", Toast.LENGTH_SHORT).show();
+              }
+          }
+
           protected Void doInBackground(Void... args) {
-              /** The players at the table. */
+              BluetoothSocket socket = null;
+              // Keep listening until exception occurs or a socket is returned
               Map<String, Player> players = new HashMap<String, Player>();
-              players.put("Henry", new Player("Henry",   STARTING_CASH, new BasicBot(0, 75)));
-              players.put("Joe",    new Player("Joe",   STARTING_CASH, new BasicBot(0, 75)));
-              players.put("Mike",   new Player("Mike",  STARTING_CASH, new BasicBot(25, 50)));
+              while (players.size() < 1) {
+                  try {
+                      socket = mmServerSocket.accept();
+                  } catch (IOException e) {
+                      break;
+                  }
+                  // If a connection was accepted
+                  if (socket != null) {
+                      // Do work to manage the connection (in a separate thread)
+                      players.put("Henry", new Player("Henry",   STARTING_CASH, new NetworkPlayer(socket)));
+
+                  }
+              }
+
               players.put("Eddie",  new Player("Eddie", STARTING_CASH, new BasicBot(50, 25)));
               UITableObserver tableObserver = new UITableObserver(PokerTableActivity.this);
               displayPlayersInfo(players);
@@ -124,20 +157,19 @@ public class PokerTableActivity extends PokerActivity implements PokerService.Me
   @Override
   protected void onResume() {
     super.onResume();
-    doBindService(new BindingCallback() {
-        @Override
-        public void onBoundToService() {
-            mBoundService.registerMessageListener(PokerTableActivity.this);
-            mBoundService.startReceivingMessages();
-            Toast.makeText(PokerTableActivity.this, "started receiving messages!", Toast.LENGTH_SHORT).show();
-        }
-    });
+//    doBindService(new BindingCallback() {
+//        @Override
+//        public void onBoundToService() {
+//            mBoundService.registerMessageListener(PokerTableActivity.this);
+//            mBoundService.startReceivingMessages();
+//            Toast.makeText(PokerTableActivity.this, "started receiving messages!", Toast.LENGTH_SHORT).show();
+//        }
+//    });
   }
   /* unregister the broadcast receiver */
   @Override
   protected void onPause() {
     super.onPause();
-    mBoundService.stopReceivingMessage();
     doUnbindService();
   }
 
