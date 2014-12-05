@@ -6,6 +6,7 @@ import android.os.Vibrator;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -36,6 +37,7 @@ Log.d("igsolla", "PokerHandActivity onCreate");
                 onBound();
             }
         });
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
     }
 
